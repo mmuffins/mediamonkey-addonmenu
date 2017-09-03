@@ -21,30 +21,40 @@ let addonsMenu = {
 								order: 10,
 								grouporder: 10
 						},
+						// {
+						// 		action: 'mp playlist checker',
+						// 		order: 20,
+						// 		grouporder: 10
+						// },
 						{
-								action: actions.scan,
-								order: 20,
-								grouporder: 10
-						},
-						{
-								action: actions.downloadFile,
-								order: 30,
-								grouporder: 10
-						},
-						{
-								action: actions.locateMissing,
-								order: 40,
-								grouporder: 10
-						},
-						{
-								action: actions.maintainLibrary,
-								order: 50,
-								grouporder: 10
-						},
-						{
-								action: actions.quit,
+								action: actions.musicLifecycle.new,
 								order: 10,
-								grouporder: 50
+								grouporder: 100
+						},
+						{
+								action: actions.musicLifecycle.newMusic,
+								order: 20,
+								grouporder: 100
+						},
+						{
+								action: actions.musicLifecycle.pending,
+								order: 30,
+								grouporder: 100
+						},
+						{
+								action: actions.musicLifecycle.transit,
+								order: 40,
+								grouporder: 100
+						},
+						{
+								action: actions.musicLifecycle.looped,
+								order: 50,
+								grouporder: 100
+						},
+						{
+								action: actions.musicLifecycle.active,
+								order: 60,
+								grouporder: 100
 						}
 				]
 		},
