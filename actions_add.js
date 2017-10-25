@@ -17,7 +17,7 @@ let addonsMenu = {
 				visible: !webApp,
 				submenu: [
 						{
-								action: actions.fixArtistDelimiter,
+								// action: actions.fixArtistDelimiter,
 								order: 10,
 								grouporder: 10
 						},
@@ -27,32 +27,32 @@ let addonsMenu = {
 						// 		grouporder: 10
 						// },
 						{
-								action: actions.musicLifecycle.new,
+								// action: actions.musicLifecycle.new,
 								order: 10,
 								grouporder: 100
 						},
 						{
-								action: actions.musicLifecycle.newMusic,
+								// action: actions.musicLifecycle.newMusic,
 								order: 20,
 								grouporder: 100
 						},
 						{
-								action: actions.musicLifecycle.pending,
+								// action: actions.musicLifecycle.pending,
 								order: 30,
 								grouporder: 100
 						},
 						{
-								action: actions.musicLifecycle.transit,
+								// action: actions.musicLifecycle.transit,
 								order: 40,
 								grouporder: 100
 						},
 						{
-								action: actions.musicLifecycle.looped,
+								// action: actions.musicLifecycle.looped,
 								order: 50,
 								grouporder: 100
 						},
 						{
-								action: actions.musicLifecycle.active,
+								// action: actions.musicLifecycle.active,
 								order: 60,
 								grouporder: 100
 						}
