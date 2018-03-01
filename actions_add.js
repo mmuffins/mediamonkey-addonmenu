@@ -59,7 +59,11 @@ addons.addonsMenu = {
 				}
 				menuItems.push({action: el.action, order: el.order, grouporder : el.grouporder, category: el.category})
 			})
-	
+
+			return resolve(menuItems)
+		})
+		.then(menuItems => {
+
 			let newMenu = {
 				action: {
 					title: function () {
@@ -78,10 +82,10 @@ addons.addonsMenu = {
 					window.mainMenuItems[i] = newMenu
 					return
 				}
-			}			
-			return resolve(newMenu)
+			}
+
+			window.mainMenuItems.push(newMenu)
 		})
-		.then(newMenu => window.mainMenuItems.push(newMenu))
 	},
 
 	getAction: function(title, category){
