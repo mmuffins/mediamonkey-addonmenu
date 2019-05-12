@@ -57,26 +57,29 @@ addons.addonsMenu = {
 		}).then(() => _this.pushToUi())
 	  },
 
-	pushToUi: function(){
+	pushToUi: async function(){
 		// pushes the internal menu to the ui
-
 		let _this = this
-
-		return new Promise(function (resolve, reject) {
 			_this.sortMenu();
-			let menuItems = []
+		let menuItems = [];
 	
-			_this.menu.forEach(el => {
-				if(!el.hasOwnProperty('action') || !el.hasOwnProperty('order') 
-					|| !el.hasOwnProperty('grouporder') || !el.hasOwnProperty('category')){
-					return
+		_this.menu.forEach(item => {
+			if(!item.hasOwnProperty('action') || !item.hasOwnProperty('order') 
+				|| !item.hasOwnProperty('grouporder') || !item.hasOwnProperty('category')){
+				return;
 				}
-				menuItems.push({action: el.action, order: el.order, grouporder : el.grouporder, category: el.category})
+			menuItems.push({action: item.action, order: item.order, grouporder : item.grouporder, category: item.category})
 			})
 
-			return resolve(menuItems)
-		})
-		.then(menuItems => {
+		// Check if the menu was already pushed to UI, and only update the menu items if it was
+		for (let i = 0; i < window.mainMenuItems.length; i++) {
+			const itm = window.mainMenuItems[i].action;
+			
+			if(itm.hasOwnProperty('title') && itm.title instanceof Function && itm.title() == '&Addons'){
+				itm.submenu = menuItems;
+				return;
+			}
+		}
 
 			let newMenu = {
 				action: {
@@ -90,37 +93,27 @@ addons.addonsMenu = {
 				grouporder: _this.menuGrouporder,
 			}
 	
-			for (let i = 0; i < window.mainMenuItems.length; i++) {
-				const el = window.mainMenuItems[i].action;
-				
-				if(el.hasOwnProperty('title') && el.title instanceof Function && el.title() == '&Addons'){
-					window.mainMenuItems[i] = newMenu
-					return
-				}
-			}
-
 			window.mainMenuItems.push(newMenu)
-		})
 	},
 
 	getAction: function(title, category){
 		// returns a reference to the action with the provided title and category
-		return this.menu.find(action => action.title ===  title && action.category === category)		 
+		return this.menu.find(action => action.title ===  title && action.category === category);		 
 	},
 
 	getCategories: function(){
 		// returns an array with all categories in the menu
-		return [...new Set(this.menu.map(x => x.category))]
+		return [...new Set(this.menu.map(x => x.category))];
 	},
 
 	sortMenu: function(){
 		// sorts the menu by category
 
 		// get list of all categories and add a sort value
-		let cat = this.getCategories().sort()
-		let catOrder = {}
+		let cat = this.getCategories().sort();
+		let catOrder = {};
 		for (let index = 0; index < cat.length; index++) {
-			catOrder[cat[index]] = (index + 1) * 100
+			catOrder[cat[index]] = (index + 1) * 100;
 		}
 
 		// update each menu item with the sort index
