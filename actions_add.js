@@ -41,7 +41,7 @@ addons.addonsMenu = {
 					return
 				}
 	
-				if (typeof _this.menu.find(action => action.title ==  title && action.category == category) != "undefined") {
+				if (typeof (_this.menu.find(item => item.title() == elementTitle && item.category == el.category)) != "undefined") {
 					// action already exists
 					return
 				} 
