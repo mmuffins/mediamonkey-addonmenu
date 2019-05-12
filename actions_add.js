@@ -15,7 +15,7 @@ addons.addonsMenu = {
 
 	registerCommands: async function (actions) {
 		// Adds the provided actions to the Addons Menu
-		let _this = this
+		let _this = this;
 
 		if(!actions instanceof Array) return resolve(false);
 
@@ -35,20 +35,18 @@ addons.addonsMenu = {
 			}
 
 			if(elementTitle == ''){
-				console.warn('Title for the item below is undefined, it will not be added to the addons menu:')
-				console.warn(el)
-				return
+				console.warn('Title for the item below is undefined, it will not be added to the addons menu:');
+				console.warn(el);
+				return;
 			}
 
 			if (typeof (_this.menu.find(item => item.title() == elementTitle && item.category == el.category)) != "undefined") {
 				// action already exists
-				return
+				return;
 			} 
 
-			let newItem = {action: el.action, order: el.order, category: el.category, title:()=> _(elementTitle), grouporder: 100}
-
-			// console.log('loading action => ' + newItem)
-			_this.menu.push(newItem)
+			let newItem = {action: el.action, order: el.order, category: el.category, title:()=> _(elementTitle), grouporder: 100};
+			_this.menu.push(newItem);
 
 		})
 		await _this.pushToUi();
@@ -56,7 +54,7 @@ addons.addonsMenu = {
 
 	pushToUi: async function(){
 		// pushes the internal menu to the ui
-		let _this = this
+		let _this = this;
 		_this.sortMenu();
 		let menuItems = [];
 
@@ -65,7 +63,7 @@ addons.addonsMenu = {
 				|| !item.hasOwnProperty('grouporder') || !item.hasOwnProperty('category')){
 				return;
 			}
-			menuItems.push({action: item.action, order: item.order, grouporder : item.grouporder, category: item.category})
+			menuItems.push({action: item.action, order: item.order, grouporder : item.grouporder, category: item.category});
 		})
 
 		// Check if the menu was already pushed to UI, and only update the menu items if it was
@@ -90,7 +88,7 @@ addons.addonsMenu = {
 			grouporder: _this.menuGrouporder,
 		}
 
-		window.mainMenuItems.push(newMenu)
+		window.mainMenuItems.push(newMenu);
 	},
 
 	getAction: function(title, category){
@@ -123,12 +121,12 @@ addons.addonsMenu = {
 		// checks addons.addonsMenuQueue for new entries and adds them to the menu
 
 		if (!addons.hasOwnProperty('addonsMenuQueue')) {
-			addons.addonsMenuQueue = []
-			return
+			addons.addonsMenuQueue = [];
+			return;
 		}
 
 		this.registerCommands(addons.addonsMenuQueue)
-		.then(addons.addonsMenuQueue = [])
+		.then(addons.addonsMenuQueue = []);
 	}
 }
 
