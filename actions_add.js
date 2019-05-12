@@ -21,8 +21,23 @@ addons.addonsMenu = {
 			if(!actions instanceof Array) return resolve(false);
 
 			actions.forEach(el => {
-				if(!el.hasOwnProperty('action') ||  el.action.title() == '' 
+				if(!el.hasOwnProperty('action') ||  !el.action.hasOwnProperty('title') 
 				|| !el.hasOwnProperty('order') || !el.hasOwnProperty('category')){
+					console.warn('Item will not be added to the addons menu due to missing properties:')
+					console.warn(el)
+					return
+				}
+
+				let elementTitle = null;
+				if(el.action.title instanceof Function){
+					elementTitle = el.action.title();
+				} else {
+					elementTitle = el.action.title;
+				}
+
+				if(elementTitle == ''){
+					console.warn('Title for the item below is undefined, it will not be added to the addons menu:')
+					console.warn(el)
 					return
 				}
 	
@@ -31,7 +46,7 @@ addons.addonsMenu = {
 					return
 				} 
 	
-				let newItem = {action: el.action, order: el.order, category: el.category, title:el.action.title(), grouporder: 100}
+				let newItem = {action: el.action, order: el.order, category: el.category, title:()=> _(elementTitle), grouporder: 100}
 	
 				// console.log('loading action => ' + newItem)
 				_this.menu.push(newItem)
