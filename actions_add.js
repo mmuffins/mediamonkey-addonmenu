@@ -1,4 +1,3 @@
-
 // Add global section to register addon actions if it doesn't exist yet
 if (typeof addons == "undefined") var addons = {}
 
@@ -78,7 +77,8 @@ addons.addonsMenu = {
 	
 			for (let i = 0; i < window.mainMenuItems.length; i++) {
 				const el = window.mainMenuItems[i].action;
-				if(el.title() == '&Addons'){
+				
+				if(el.hasOwnProperty('title') && el.title instanceof Function && el.title() == '&Addons'){
 					window.mainMenuItems[i] = newMenu
 					return
 				}
@@ -124,8 +124,6 @@ addons.addonsMenu = {
 
 		this.registerCommands(addons.addonsMenuQueue)
 		.then(addons.addonsMenuQueue = [])
-		
-		
 	}
 }
 
