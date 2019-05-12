@@ -13,63 +13,60 @@ addons.addonsMenu = {
 	menu: [],
 
 
-	  registerCommands: function (actions) {
+	registerCommands: async function (actions) {
 		// Adds the provided actions to the Addons Menu
 		let _this = this
 
-		return new Promise((resolve, reject) => {
-			if(!actions instanceof Array) return resolve(false);
+		if(!actions instanceof Array) return resolve(false);
 
-			actions.forEach(el => {
-				if(!el.hasOwnProperty('action') ||  !el.action.hasOwnProperty('title') 
-				|| !el.hasOwnProperty('order') || !el.hasOwnProperty('category')){
-					console.warn('Item will not be added to the addons menu due to missing properties:')
-					console.warn(el)
-					return
-				}
+		actions.forEach(el => {
+			if(!el.hasOwnProperty('action') ||  !el.action.hasOwnProperty('title') 
+			|| !el.hasOwnProperty('order') || !el.hasOwnProperty('category')){
+				console.warn('Item will not be added to the addons menu due to missing properties:')
+				console.warn(el)
+				return
+			}
 
-				let elementTitle = null;
-				if(el.action.title instanceof Function){
-					elementTitle = el.action.title();
-				} else {
-					elementTitle = el.action.title;
-				}
+			let elementTitle = null;
+			if(el.action.title instanceof Function){
+				elementTitle = el.action.title();
+			} else {
+				elementTitle = el.action.title;
+			}
 
-				if(elementTitle == ''){
-					console.warn('Title for the item below is undefined, it will not be added to the addons menu:')
-					console.warn(el)
-					return
-				}
-	
-				if (typeof (_this.menu.find(item => item.title() == elementTitle && item.category == el.category)) != "undefined") {
-					// action already exists
-					return
-				} 
-	
-				let newItem = {action: el.action, order: el.order, category: el.category, title:()=> _(elementTitle), grouporder: 100}
-	
-				// console.log('loading action => ' + newItem)
-				_this.menu.push(newItem)
-	
-			})
-	
-			return resolve(true)
-		}).then(() => _this.pushToUi())
-	  },
+			if(elementTitle == ''){
+				console.warn('Title for the item below is undefined, it will not be added to the addons menu:')
+				console.warn(el)
+				return
+			}
+
+			if (typeof (_this.menu.find(item => item.title() == elementTitle && item.category == el.category)) != "undefined") {
+				// action already exists
+				return
+			} 
+
+			let newItem = {action: el.action, order: el.order, category: el.category, title:()=> _(elementTitle), grouporder: 100}
+
+			// console.log('loading action => ' + newItem)
+			_this.menu.push(newItem)
+
+		})
+		await _this.pushToUi();
+	},
 
 	pushToUi: async function(){
 		// pushes the internal menu to the ui
 		let _this = this
-			_this.sortMenu();
+		_this.sortMenu();
 		let menuItems = [];
-	
+
 		_this.menu.forEach(item => {
 			if(!item.hasOwnProperty('action') || !item.hasOwnProperty('order') 
 				|| !item.hasOwnProperty('grouporder') || !item.hasOwnProperty('category')){
 				return;
-				}
+			}
 			menuItems.push({action: item.action, order: item.order, grouporder : item.grouporder, category: item.category})
-			})
+		})
 
 		// Check if the menu was already pushed to UI, and only update the menu items if it was
 		for (let i = 0; i < window.mainMenuItems.length; i++) {
@@ -80,20 +77,20 @@ addons.addonsMenu = {
 				return;
 			}
 		}
-
-			let newMenu = {
-				action: {
-					title: function () {
-							return _('&Addons');
-					},
-					visible: !webApp,
-					submenu: menuItems
+		
+		let newMenu = {
+			action: {
+				title: function () {
+						return _('&Addons');
 				},
-				order: _this.menuOrder,
-				grouporder: _this.menuGrouporder,
-			}
-	
-			window.mainMenuItems.push(newMenu)
+				visible: !webApp,
+				submenu: menuItems
+			},
+			order: _this.menuOrder,
+			grouporder: _this.menuGrouporder,
+		}
+
+		window.mainMenuItems.push(newMenu)
 	},
 
 	getAction: function(title, category){
