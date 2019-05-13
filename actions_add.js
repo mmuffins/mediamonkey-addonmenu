@@ -1,9 +1,12 @@
-// Add global section to register addon actions if it doesn't exist yet
-if (typeof addons == "undefined") var addons = {}
+"use strict";
 
 window.actionCategories.addons = function(){
 	return _('Extensions');
 }
+
+// Add global section to register addon actions if it doesn't exist yet
+if (typeof addons == "undefined") 
+	var addons = {}
 
 addons.addonsMenu = {
 	menuOrder: 55,
