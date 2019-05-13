@@ -5,73 +5,63 @@ window.actionCategories.addons = function(){
 	return _('AddonsMenu');
 }
 
-addons.addonsMenuQueue = []
-
 addons.addonsMenu = {
 	menuOrder: 55,
 	menuGrouporder: 10,
 	menu: [],
 
-
-	registerCommands: async function (actions) {
-		// Adds the provided actions to the Addons Menu
+	refresh: async function(){
 		let _this = this;
+		if (!addons.hasOwnProperty('addonsMenuImportQueue') || !addons.addonsMenuImportQueue instanceof Array) {
+			addons.addonsMenuImportQueue = [];
+			return;
+		}
 
-		if(!actions instanceof Array) return resolve(false);
+		if(addons.addonsMenuImportQueue.length == 0)
+			return;
 
-		actions.forEach(el => {
-			if(!el.hasOwnProperty('action') ||  !el.action.hasOwnProperty('title') 
-			|| !el.hasOwnProperty('order') || !el.hasOwnProperty('category')){
-				console.warn('Item will not be added to the addons menu due to missing properties:')
-				console.warn(el)
-				return
-			}
+		let importItems = addons.addonsMenuImportQueue;
+		addons.addonsMenuImportQueue = [];
 
-			let elementTitle = null;
-			if(el.action.title instanceof Function){
-				elementTitle = el.action.title();
-			} else {
-				elementTitle = el.action.title;
-			}
+		// filter out items with missing properties
+		importItems = importItems.filter(menuItm => {
+			return (menuItm.hasOwnProperty('action') 
+			&& menuItm.action.hasOwnProperty('title') 
+			&& menuItm.hasOwnProperty('order') 
+			&& menuItm.hasOwnProperty('category'));
+		});
 
-			if(elementTitle == ''){
-				console.warn('Title for the item below is undefined, it will not be added to the addons menu:');
-				console.warn(el);
-				return;
-			}
+		// filter out items with missing title function or blank title
+		importItems = importItems.filter(menuItm => {
+			return (menuItm.action.title instanceof Function && menuItm.action.title() != '');
+		});
 
-			if (typeof (_this.menu.find(item => item.title() == elementTitle && item.category == el.category)) != "undefined") {
-				// action already exists
-				return;
+		// Add imported entries to menu, but skip duplicates
+		importItems.forEach(addonItm => {
+			if (typeof (_this.menu.find(item => item.action.title() == addonItm.action.title() && item.category == addonItm.category)) != "undefined") {
+				return Promise.reject('Item already exists');
 			} 
 
-			let newItem = {action: el.action, order: el.order, category: el.category, title:()=> _(elementTitle), grouporder: 100};
-			_this.menu.push(newItem);
-
+			_this.menu.push({action: addonItm.action, order: addonItm.order, category: addonItm.category, grouporder: 100});
 		})
+		
+		_this.sortMenu();
 		await _this.pushToUi();
 	},
 
 	pushToUi: async function(){
 		// pushes the internal menu to the ui
 		let _this = this;
-		_this.sortMenu();
-		let menuItems = [];
 
-		_this.menu.forEach(item => {
-			if(!item.hasOwnProperty('action') || !item.hasOwnProperty('order') 
-				|| !item.hasOwnProperty('grouporder') || !item.hasOwnProperty('category')){
-				return;
-			}
-			menuItems.push({action: item.action, order: item.order, grouporder : item.grouporder, category: item.category});
-		})
+		if(_this.menu.length == 0)
+			return;
 
 		// Check if the menu was already pushed to UI, and only update the menu items if it was
 		for (let i = 0; i < window.mainMenuItems.length; i++) {
 			const itm = window.mainMenuItems[i].action;
 			
 			if(itm.hasOwnProperty('title') && itm.title instanceof Function && itm.title() == '&Addons'){
-				itm.submenu = menuItems;
+				itm.submenu = _this.menu;
 				return;
 			}
 		}
@@ -82,18 +72,15 @@ addons.addonsMenu = {
 						return _('&Addons');
 				},
 				visible: !webApp,
-				submenu: menuItems
+				submenu: _this.menu
 			},
 			order: _this.menuOrder,
 			grouporder: _this.menuGrouporder,
 		}
 
 		window.mainMenuItems.push(newMenu);
-	},
-
-	getAction: function(title, category){
-		// returns a reference to the action with the provided title and category
-		return this.menu.find(action => action.title ===  title && action.category === category);		 
+		uitools.switchMainMenu(false);
+		uitools.switchMainMenu(true);
 	},
 
 	getCategories: function(){
@@ -115,21 +102,7 @@ addons.addonsMenu = {
 		this.menu.forEach(el => {
 			el.grouporder = catOrder[el.category]
 		});
-	},
-
-	importMenuQueue: function(){
-		// checks addons.addonsMenuQueue for new entries and adds them to the menu
-
-		if (!addons.hasOwnProperty('addonsMenuQueue')) {
-			addons.addonsMenuQueue = [];
-			return;
-		}
-
-		this.registerCommands(addons.addonsMenuQueue)
-		.then(addons.addonsMenuQueue = []);
 	}
 }
 
-// addons.addonsMenu.importMenuQueue()
-
-
+addons.addonsMenu.refresh()
