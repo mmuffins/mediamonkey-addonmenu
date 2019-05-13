@@ -2,7 +2,7 @@
 if (typeof addons == "undefined") var addons = {}
 
 window.actionCategories.addons = function(){
-	return _('AddonsMenu');
+	return _('Extensions');
 }
 
 addons.addonsMenu = {
