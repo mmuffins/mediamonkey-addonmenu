@@ -1,5 +1,5 @@
 # Addons Menu for MediaMonkey
-This extension adds an addons menu to the MediaMonkey 5 main menu.
+This extension adds an additional item to the MediaMonkey 5 main menu bar that allows extension developers to present an entry point or functionality of their extension in a central and consistent way to the user.
 
 ## Installation
 Download the latest release from the releases section and double click addonsMenu.mmip. An MediaMonkey dialog will automatically pop up, prompting you to confirm the installation.
@@ -34,33 +34,30 @@ actions.testAddon = {
   },
 }
 ```
-Create an array containing all entries that should be added to the addons menu. Each entry that should be added to the addons menu needs to have three properties:
+Since it's not possible to enforce a load order for extensions or otherwise ensure that the Addons Menu extension is loaded before an extension wants to register an action, new menu items are added indirectly by pushing them into an import queue, which is picked up and processed once the Addons Menu extension is loaded.
+
+```
+// Add global section to register addon actions if it doesn't exist yet
+if (typeof addons == "undefined") 
+	var addons = {}
+
+// If the Addons Menu was not loaded yet, not import queue exists. 
+if (!addons.hasOwnProperty('addonsMenuImportQueue')) 
+  addons.addonsMenuImportQueue = []
+
+// Push actions that should be added to the menu to the import queue.
+// Do not replace the import queue with a new array as this might remove already queued actions from other extensions
+testAddonActions.push({action:actions.testAddon.create, order: 10, category:'TestAddon'})
+testAddonActions.push({action:actions.testAddon.delete, order: 20, category:'TestAddon'})
+
+// Refresh the menu to import actions that were added to the queue.
+// No need to worry if the menu can't be refreshed at this point because it's not loaded yet.
+// It will automatically import all pending entries in the import queue as soon as its  loaded.
+if(addons.addonsMenu != null)
+  addons.addonsMenu.refresh();
+```
+
+Each pushed to the import queue needs to have three properties:
 * action: Contains the action to be executed.
 * category: Category/Grouping name for all entries. This should usually be the name of the addon.
 * order: Sort order for the respective entry within its category.
-
-```
-let testAddonActions = []
-// every action that should 
-testAddonActions.push({action:actions.testAddon.create, order: 10, category:'TestAddon'})
-testAddonActions.push({action:actions.testAddon.delete, order: 20, category:'TestAddon'})
-```
-
-
-Since it's not possible to enforce a load order for extensions, it cannot be guaranteed that the addons menu is already loaded when the addon wants to register an action. If it is already loaded, the addon can directly register the action, if not, it needs to add the action to a addons menu queue. Once it's loaded, the addons menu will check the queue and register all actions.
-
-```
-// Add global namespace to register addon actions if it doesn't exist yet
-if (typeof addons == "undefined") var addons = {}
-
-if(addons.addonsMenu != null){
-  // Directly register actions if the addons menu has been loaded
-  addons.addonsMenu.registerCommands(testAddonActions)
-} else {
-  // Otherwise add them to the addons menu queue
-  if (!addons.hasOwnProperty('addonsMenuQueue')) addons.addonsMenuQueue = []
-  testAddonActions.forEach(element => {
-    addons.addonsMenuQueue.push(element)
-  });
-}
-```
