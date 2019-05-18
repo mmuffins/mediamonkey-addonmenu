@@ -1,4 +1,6 @@
 # Addons Menu for MediaMonkey
+[![Build status](https://dev.azure.com/mmuffins/github/_apis/build/status/MediaMonkey.AddonsMenu)](https://dev.azure.com/mmuffins/github/_build/latest?definitionId=79)
+
 This extension adds an additional item to the MediaMonkey 5 main menu bar that allows extension developers to present an entry point or functionality of their extension in a central and consistent way to the user.
 
 ## Installation
@@ -7,7 +9,7 @@ Download the latest release from the releases section and double click addonsMen
 ## Registering actions
 To add an action to the addons menu, follow the steps below.
 Create an action for the function of the calling addon
-```
+```javascript
 actions.testAddon = {
 	create: {
     title: function() {
@@ -36,7 +38,7 @@ actions.testAddon = {
 ```
 Since it's not possible to enforce a load order for extensions or otherwise ensure that the Addons Menu extension is loaded before an extension wants to register an action, new menu items are added indirectly by pushing them into an import queue, which is picked up and processed once the Addons Menu extension is loaded.
 
-```
+```javascript
 // Add global section to register addon actions if it doesn't exist yet
 if (typeof addons == "undefined") 
 	var addons = {}
