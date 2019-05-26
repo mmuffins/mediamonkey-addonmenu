@@ -1,7 +1,7 @@
 {
-    "title": "Addons Menu",
-    "id": "AddonsMenu",
-    "description": "Adds an Addons Section to the Main Menu",
+    "title": "Extensions Menu",
+    "id": "extensionsMenu",
+    "description": "Adds an Extensions Section to the Main Menu",
     "version": "1.0.0",
     "type": "general",
     "author": "Michael Kellner"
