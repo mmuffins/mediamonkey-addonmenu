@@ -1,30 +1,30 @@
 "use strict";
 
-window.actionCategories.addons = function(){
+window.actionCategories.extensions = function(){
 	return _('Extensions');
 }
 
-// Add global section to register addon actions if it doesn't exist yet
-if (typeof addons == "undefined") 
-	var addons = {}
+// Add global section to register extension actions if it doesn't exist yet
+if (typeof extensions == "undefined") 
+	var extensions = {}
 
-addons.addonsMenu = {
+extensions.extensionsMenu = {
 	menuOrder: 55,
 	menuGrouporder: 10,
 	menu: [],
 
 	refresh: async function(){
 		let _this = this;
-		if (!addons.hasOwnProperty('addonsMenuImportQueue') || !addons.addonsMenuImportQueue instanceof Array) {
-			addons.addonsMenuImportQueue = [];
+		if (!extensions.hasOwnProperty('extensionsMenuImportQueue') || !extensions.extensionsMenuImportQueue instanceof Array) {
+			extensions.extensionsMenuImportQueue = [];
 			return;
 		}
 
-		if(addons.addonsMenuImportQueue.length == 0)
+		if(extensions.extensionsMenuImportQueue.length == 0)
 			return;
 
-		let importItems = addons.addonsMenuImportQueue;
-		addons.addonsMenuImportQueue = [];
+		let importItems = extensions.extensionsMenuImportQueue;
+		extensions.extensionsMenuImportQueue = [];
 
 		// filter out items with missing properties
 		importItems = importItems.filter(menuItm => {
@@ -40,12 +40,12 @@ addons.addonsMenu = {
 		});
 
 		// Add imported entries to menu, but skip duplicates
-		importItems.forEach(addonItm => {
-			if (typeof (_this.menu.find(item => item.action.title() == addonItm.action.title() && item.category == addonItm.category)) != "undefined") {
+		importItems.forEach(extensionItm => {
+			if (typeof (_this.menu.find(item => item.action.title() == extensionItm.action.title() && item.category == extensionItm.category)) != "undefined") {
 				return Promise.reject('Item already exists');
 			} 
 
-			_this.menu.push({action: addonItm.action, order: addonItm.order, category: addonItm.category, grouporder: 100});
+			_this.menu.push({action: extensionItm.action, order: extensionItm.order, category: extensionItm.category, grouporder: 100});
 		})
 		
 		_this.sortMenu();
@@ -63,7 +63,7 @@ addons.addonsMenu = {
 		for (let i = 0; i < window.mainMenuItems.length; i++) {
 			const itm = window.mainMenuItems[i].action;
 			
-			if(itm.hasOwnProperty('title') && itm.title instanceof Function && itm.title() == '&Addons'){
+			if(itm.hasOwnProperty('title') && itm.title instanceof Function && itm.title() == '&Extensions'){
 				itm.submenu = _this.menu;
 				return;
 			}
@@ -72,7 +72,7 @@ addons.addonsMenu = {
 		let newMenu = {
 			action: {
 				title: function () {
-						return _('&Addons');
+						return _('&Extensions');
 				},
 				visible: !webApp,
 				submenu: _this.menu
@@ -108,4 +108,4 @@ addons.addonsMenu = {
 	}
 }
 
-addons.addonsMenu.refresh()
+extensions.extensionsMenu.refresh()
