@@ -74,6 +74,7 @@ extensions.extensionsMenu = {
 		}
 
 		window.mainMenuItems.push(newMenu);
+		window.mainMenuItems = window.mainMenuItems.sort((a,b) => a.order > b.order);
 		uitools.switchMainMenu(false);
 		uitools.switchMainMenu(true);
 	},
