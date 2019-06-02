@@ -1,7 +1,6 @@
 "use strict";
 
 extensions.extensionsMenu = {
-	menuOrder: 55,
 	menuGrouporder: 10,
 	menu: [],
 
@@ -61,6 +60,14 @@ extensions.extensionsMenu = {
 			}
 		}
 		
+		// The extensions menu item has not yet been added to the main menu
+
+		// The help menu is usually the last available item. 
+		// To prevent collisions with other items, get the sort order of the Help menu and move backwards until a free index was found
+		let helpMenu = window.mainMenuItems.filter(itm => itm.action.title instanceof Function && itm.action.title() == "&Help")
+
+		let menuOrder = 55;
+
 		let newMenu = {
 			action: {
 				title: function () {
@@ -69,12 +76,12 @@ extensions.extensionsMenu = {
 				visible: !webApp,
 				submenu: _this.menu
 			},
-			order: _this.menuOrder,
+			order: menuOrder,
 			grouporder: _this.menuGrouporder,
 		}
 
 		window.mainMenuItems.push(newMenu);
-		window.mainMenuItems = window.mainMenuItems.sort((a,b) => a.order > b.order);
+		window.mainMenuItems = window.mainMenuItems.sort((a,b) =>  !a.hasOwnProperty('order') || a.order > b.order);
 		uitools.switchMainMenu(false);
 		uitools.switchMainMenu(true);
 	},
