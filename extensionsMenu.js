@@ -107,6 +107,18 @@ extensions.extensionsMenu = {
 		this.menu.forEach(el => {
 			el.grouporder = catOrder[el.category]
 		});
+	},
+
+	getExtensionActions: function(){
+
+		// returns an array containing all actions in the extensions category
+
+		let extensionCat = actionCategories.extensions();
+		return Object.keys(actions)
+			.filter((key) => actions[key].hasOwnProperty("category") 
+				&& typeof actions[key].category == "function"  
+				&& actions[key].category() == extensionCat)
+			.reduce((obj, key) => {return{...obj, [key]: actions[key]}},{})
 	}
 }
 
