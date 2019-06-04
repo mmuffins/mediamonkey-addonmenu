@@ -62,11 +62,13 @@ extensions.extensionsMenu = {
 		
 		// The extensions menu item has not yet been added to the main menu
 
-		// The help menu is usually the last available item. 
-		// To prevent collisions with other items, get the sort order of the Help menu and move backwards until a free index was found
-		let helpMenu = window.mainMenuItems.filter(itm => itm.action.title instanceof Function && itm.action.title() == "&Help")
+		// The help menu is, by convention, the last item on a menu bar, so the extension menu should be positioned before it.
 
-		let menuOrder = 55;
+		let helpMenu = window.mainMenuItems.filter(itm => itm.action.title instanceof Function && itm.action.title() == "&Help")[0]
+		// While just taking the first index before the helpmenu could cause a collision with other items,
+		// it doesn't matter beacause what ultimately decides the used order is the position within the mainMenuItems array,
+		// not the order property
+		let extMenuIndex = helpMenu.order -1;
 
 		let newMenu = {
 			action: {
@@ -76,12 +78,12 @@ extensions.extensionsMenu = {
 				visible: !webApp,
 				submenu: _this.menu
 			},
-			order: menuOrder,
+			order: extMenuIndex,
 			grouporder: _this.menuGrouporder,
 		}
 
 		window.mainMenuItems.push(newMenu);
-		window.mainMenuItems = window.mainMenuItems.sort((a,b) =>  !a.hasOwnProperty('order') || a.order > b.order);
+		window.mainMenuItems.sort((a,b) =>  !a.hasOwnProperty('order') || a.order > b.order);
 		uitools.switchMainMenu(false);
 		uitools.switchMainMenu(true);
 	},
