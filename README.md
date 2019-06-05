@@ -10,7 +10,7 @@ Download the latest release from the releases section and double click extension
 The extension menu automatically imports all valid actions from the global actions object if they are in the Extenions category. The following properties are required for an action to be considered valid:
 
 | Name          | Type       | Description  |
-| ------------- |:----------:| ------------:|
+| :------------ |:---------- | :----------  |
 | title         | function   | Display name of the action |
 | category      | function   | Needs to return the same value as actionCategories.extensions |
 | extension     | function   | Display name of the extension |
