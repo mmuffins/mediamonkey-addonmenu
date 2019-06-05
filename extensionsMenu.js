@@ -1,5 +1,9 @@
 "use strict";
 
+// Add global section to register extension actions if it doesn't exist yet
+if (typeof extensions == "undefined")
+    var extensions = {}
+
 extensions.extensionsMenu = {
 	menu: [],
 	miscCategoryName: "Misc",
