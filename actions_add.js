@@ -1,4 +1,4 @@
-window.actionCategories.extensions = function(){
+actionCategories.extensions = function(){
     return _('Extensions');
 }
 
