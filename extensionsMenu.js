@@ -1,53 +1,20 @@
 "use strict";
 
 extensions.extensionsMenu = {
-	menuGrouporder: 10,
 	menu: [],
+	miscCategoryName: "Misc",
 
 	refresh: async function(){
 		let _this = this;
-		if (!extensions.hasOwnProperty('extensionsMenuImportQueue') || !extensions.extensionsMenuImportQueue instanceof Array) {
-			extensions.extensionsMenuImportQueue = [];
-			return;
-		}
-
-		if(extensions.extensionsMenuImportQueue.length == 0)
-			return;
-
-		let importItems = extensions.extensionsMenuImportQueue;
-		extensions.extensionsMenuImportQueue = [];
-
-		// filter out items with missing properties
-		importItems = importItems.filter(menuItm => {
-			return (menuItm.hasOwnProperty('action') 
-			&& menuItm.action.hasOwnProperty('title') 
-			&& menuItm.hasOwnProperty('order') 
-			&& menuItm.hasOwnProperty('category'));
-		});
-
-		// filter out items with missing title function or blank title
-		importItems = importItems.filter(menuItm => {
-			return (menuItm.action.title instanceof Function && menuItm.action.title() != '');
-		});
-
-		// Add imported entries to menu, but skip duplicates
-		importItems.forEach(extensionItm => {
-			if (typeof (_this.menu.find(item => item.action.title() == extensionItm.action.title() && item.category == extensionItm.category)) != "undefined") {
-				return Promise.reject('Item already exists');
-			} 
-
-			_this.menu.push({action: extensionItm.action, order: extensionItm.order, category: extensionItm.category, grouporder: 100});
-		})
-		
-		_this.sortMenu();
-		await _this.pushToUi();
+		let menu = _this.buildMenu()
+		await _this.pushToUi(menu);
 	},
 
-	pushToUi: async function(){
+	pushToUi: async function(Menu){
 		// pushes the internal menu to the ui
 		let _this = this;
 
-		if(_this.menu.length == 0)
+		if(Menu.length == 0)
 			return;
 
 		// Check if the menu was already pushed to UI, and only update the menu items if it was
@@ -55,7 +22,7 @@ extensions.extensionsMenu = {
 			const itm = window.mainMenuItems[i].action;
 			
 			if(itm.hasOwnProperty('title') && itm.title instanceof Function && itm.title() == '&Extensions'){
-				itm.submenu = _this.menu;
+				itm.submenu = Menu;
 				return;
 			}
 		}
@@ -76,10 +43,10 @@ extensions.extensionsMenu = {
 						return _('&Extensions');
 				},
 				visible: !webApp,
-				submenu: _this.menu
+				submenu: Menu
 			},
 			order: extMenuIndex,
-			grouporder: _this.menuGrouporder,
+			grouporder: 10,
 		}
 
 		window.mainMenuItems.push(newMenu);
@@ -110,15 +77,106 @@ extensions.extensionsMenu = {
 	},
 
 	getExtensionActions: function(){
-
-		// returns an array containing all actions in the extensions category
+		// returns an array containing all extension in the extensions category
 
 		let extensionCat = actionCategories.extensions();
 		return Object.keys(actions)
 			.filter((key) => actions[key].hasOwnProperty("category") 
-				&& typeof actions[key].category == "function"  
+				&& actions[key].category instanceof Function 
 				&& actions[key].category() == extensionCat)
-			.reduce((obj, key) => {return{...obj, [key]: actions[key]}},{})
+			.map(function(key){return actions[key]})
+	},
+
+	getValidActions: function(){
+		// returns an array containing all extension actions with valid properties
+
+		let allActions = this.getExtensionActions();
+
+		let validActions = allActions.filter(ext => {
+			return (ext.hasOwnProperty('execute') 
+			&& ext.hasOwnProperty('title')
+			&& ext.title instanceof Function
+			&& (ext.title())
+			);
+		});
+		
+		return validActions;
+
+	},
+
+	getGroupedExtensionActions: function(){
+		// returns an array of extension actions grouped by their extension property
+		// extensions without the extension property will be grouped into the Misc category
+
+		let extensionActions = this.getValidActions();
+		let actionsWithExt = extensionActions.filter(x => {
+			return x.hasOwnProperty("extension") 
+			&& x.extension instanceof Function
+			&& (x.extension())
+		});
+
+		let extList = this.getExtensionList();
+		extList.sort();
+		let groupedList = [];
+
+		extList.forEach(ext =>{
+			let extActions = actionsWithExt.filter(x => x.extension() == ext)
+
+			groupedList.push({
+				extension:ext,
+				actions:extActions
+			});
+		});
+
+		let actionsWithoutExt = extensionActions.filter(x => {
+			return !x.hasOwnProperty("extension") 
+			|| !(x.extension instanceof Function)
+			|| !(x.extension())
+		});
+
+		if(actionsWithoutExt.length > 0){
+			groupedList.push({
+				extension:this.miscCategoryName,
+				actions:actionsWithoutExt
+			});
+		}
+
+		return groupedList;
+	},
+
+	getExtensionList: function(){
+		// Returns the grouped extension list of all loaded actions
+
+		let extensionActions = this.getValidActions();
+		return [...new Set(extensionActions.map(x => {
+				if(x.hasOwnProperty("extension") && x.extension instanceof Function){
+					return x.extension();
+				}
+			}))]
+			.filter(x => x) // filters out undefined
+	},
+
+	buildMenu: function(){
+		// Creates menu that can be pushed to the main menu
+
+		let extActions = this.getGroupedExtensionActions();
+
+		let menu = [];
+		let sortOrder = 0;
+		extActions.forEach(ext =>{
+			
+			let itemAction = {
+				title: () => ext.extension,
+				submenu: ext.actions
+			};
+
+			menu.push({
+				action: itemAction,
+				grouporder: 10,
+				order: (sortOrder += 10)
+			});
+		})
+		return menu;
 	}
 }
 
