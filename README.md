@@ -12,7 +12,6 @@ The extension menu automatically imports all valid actions from the global actio
 | Name          | Type       | Description  |
 | :------------ |:---------- | :----------  |
 | title         | function   | Display name of the action |
-| category      | function   | Needs to return the same value as actionCategories.extensions |
 | extension     | function   | Display name of the extension |
 | execute       | function   | Function to execute when calling the action |
 
@@ -20,27 +19,25 @@ The extension menu automatically imports all valid actions from the global actio
 To create new actions, simply add a new property to the global actions object.
 
 ```javascript
-// It's not possible to reliable change the load order of addons, for compatibilty reasons 
-// the code below should therefore always be executed before registering actions
 if(!actionCategories.hasOwnProperty('extensions')){
   actionCategories.extensions = () => _('Extensions');
 }
 
 actions.MyAddonAction = {
-  title: () => '&My Addon Action',
+  title: () => _('&My Addon Action'),
   hotkeyAble: true,
   category: actionCategories.extensions,
   icon: 'myAddonIcon',
-  extension: () => "My Addon",
+  extension: () => _("My &Addon"),
   execute: () => alert('My Addon Action')
 }
 
 actions.MyOtherAddonAction = {
-  title: () => '&My Other Addon Action',
+  title: () => _('My &Other Addon Action'),
   hotkeyAble: true,
   category: actionCategories.extensions,
   icon: 'myOtherAddonIcon',
-  extension: () => "My Addon",
+  extension: () => _("My &Addon"),
   execute: () => alert('My Other Addon Action')
 }
 

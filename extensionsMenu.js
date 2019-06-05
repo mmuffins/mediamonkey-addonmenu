@@ -81,13 +81,12 @@ extensions.extensionsMenu = {
 	},
 
 	getExtensionActions: function(){
-		// returns an array containing all extension in the extensions category
+		// returns an array containing all actions with an extension property
 
-		let extensionCat = actionCategories.extensions();
 		return Object.keys(actions)
-			.filter((key) => actions[key].hasOwnProperty("category") 
-				&& actions[key].category instanceof Function 
-				&& actions[key].category() == extensionCat)
+			.filter((key) => actions[key].hasOwnProperty("extension") 
+				&& actions[key].extension instanceof Function
+				&& (actions[key].extension()))
 			.map(function(key){return actions[key]})
 	},
 
@@ -105,7 +104,6 @@ extensions.extensionsMenu = {
 		});
 		
 		return validActions;
-
 	},
 
 	getGroupedExtensionActions: function(){
@@ -113,37 +111,19 @@ extensions.extensionsMenu = {
 		// extensions without the extension property will be grouped into the Misc category
 
 		let extensionActions = this.getValidActions();
-		let actionsWithExt = extensionActions.filter(x => {
-			return x.hasOwnProperty("extension") 
-			&& x.extension instanceof Function
-			&& (x.extension())
-		});
 
 		let extList = this.getExtensionList();
 		extList.sort();
 		let groupedList = [];
 
 		extList.forEach(ext =>{
-			let extActions = actionsWithExt.filter(x => x.extension() == ext)
+			let extActions = extensionActions.filter(x => x.extension() == ext)
 
 			groupedList.push({
 				extension:ext,
 				actions:extActions
 			});
 		});
-
-		let actionsWithoutExt = extensionActions.filter(x => {
-			return !x.hasOwnProperty("extension") 
-			|| !(x.extension instanceof Function)
-			|| !(x.extension())
-		});
-
-		if(actionsWithoutExt.length > 0){
-			groupedList.push({
-				extension:this.miscCategoryName,
-				actions:actionsWithoutExt
-			});
-		}
 
 		return groupedList;
 	},
@@ -152,12 +132,7 @@ extensions.extensionsMenu = {
 		// Returns the grouped extension list of all loaded actions
 
 		let extensionActions = this.getValidActions();
-		return [...new Set(extensionActions.map(x => {
-				if(x.hasOwnProperty("extension") && x.extension instanceof Function){
-					return x.extension();
-				}
-			}))]
-			.filter(x => x) // filters out undefined
+		return [...new Set(extensionActions.map(x => x.extension()))]
 	},
 
 	buildMenu: function(){
