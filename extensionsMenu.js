@@ -2,15 +2,16 @@
 
 // Add global section to register extension actions if it doesn't exist yet
 if (typeof extensions == "undefined")
-    var extensions = {}
-
+	extensions = {}
+	
 extensions.extensionsMenu = {
-	menu: [],
+	actionTree: [],
 	miscCategoryName: "Misc",
+	addonName: () => "ExtensionsMenu",
 
 	refresh: async function(){
 		let _this = this;
-		let menu = _this.buildMenu()
+		let menu = _this.buildMainMenuArray()
 		await _this.pushToUi(menu);
 	},
 
@@ -81,82 +82,319 @@ extensions.extensionsMenu = {
 	},
 
 	getExtensionActions: function(){
-		// returns an array containing all actions with an extension property
+		// returns a list of all actions with an extension property
 
 		return Object.keys(actions)
 			.filter((key) => actions[key].hasOwnProperty("extension") 
 				&& actions[key].extension instanceof Function
 				&& (actions[key].extension()))
-			.map(function(key){return actions[key]})
+			// .map(function(key){return {key:key,action:actions[key]}})
 	},
 
 	getValidActions: function(){
-		// returns an array containing all extension actions with valid properties
+		// returns a list of all extension actions with valid properties
 
 		let allActions = this.getExtensionActions();
 
+		// let validActions = allActions.filter(ext => {
+		// 	return (ext.action.hasOwnProperty('execute') 
+		// 	&& ext.action.hasOwnProperty('title')
+		// 	&& ext.action.title instanceof Function
+		// 	&& (ext.action.title())
+		// 	);
+		// });
+
 		let validActions = allActions.filter(ext => {
-			return (ext.hasOwnProperty('execute') 
-			&& ext.hasOwnProperty('title')
-			&& ext.title instanceof Function
-			&& (ext.title())
+			return (actions[ext].hasOwnProperty('execute') 
+			&& actions[ext].hasOwnProperty('title')
+			&& actions[ext].title instanceof Function
+			&& (actions[ext].title())
 			);
-		});
+		})
+
+		// validActions.forEach(act => {
+		// 	act.id = `ext.${window.uitools.getPureTitle(act.extension()).replace(" ","_")}.action.${window.uitools.getPureTitle(act.title()).replace(" ","_")}`
+		// })
 		
 		return validActions;
-	},
-
-	getGroupedExtensionActions: function(){
-		// returns an array of extension actions grouped by their extension property
-		// extensions without the extension property will be grouped into the Misc category
-
-		let extensionActions = this.getValidActions();
-
-		let extList = this.getExtensionList();
-		extList.sort();
-		let groupedList = [];
-
-		extList.forEach(ext =>{
-			let extActions = extensionActions.filter(x => x.extension() == ext)
-
-			groupedList.push({
-				extension:ext,
-				actions:extActions
-			});
-		});
-
-		return groupedList;
 	},
 
 	getExtensionList: function(){
 		// Returns the grouped extension list of all loaded actions
 
-		let extensionActions = this.getValidActions();
-		return [...new Set(extensionActions.map(x => x.extension()))]
+		let validActions = this.getValidActions();
+		// return [...new Set(extensionActions.map(x => x.action.extension()))]
+		return [...new Set(validActions.map(act => actions[act].extension()))]
+
 	},
 
-	buildMenu: function(){
+	groupActions: function(){
+		// returns an array of all valid actions grouped by their extension;
+
+		let groupedActions = [];
+		let validActions = this.getValidActions();
+		let extensionList = this.getExtensionList();
+
+		// expand valid actions to full object to be able to group them
+		let actionFunctions = Object.keys(actions)
+			.filter(key => validActions.includes(key))
+			.map(function(key){return {key:key,action:actions[key]}})
+		
+		// get the actions for each extension and group them
+		extensionList.forEach(ext =>{
+			let filteredActions = actionFunctions
+				.filter(act => act.action.extension() == ext)
+				.map(act => act.key)
+
+			groupedActions.push({
+				extension: ext,
+				actions: filteredActions
+			});
+		});
+
+		return groupedActions;
+	},
+
+	buildActionTree: function(){
+		// Creates an extension tree from the currently loaded actions
+
+		let extActions = this.groupActions();
+		extActions.sort();
+
+		let tree = [];
+
+		let extSortOrder = 0;
+		extActions.forEach(ext =>{
+
+			// map each action with its order within the extension and an unique ID
+			let actionSortOrder = 0;
+			let extActions = ext.actions.map(act => {
+				return {
+					action: act,
+					id: `actions.${act}`,
+					group: `groups.${window.uitools.getPureTitle(ext.extension).replace(" ","_")}`,
+					order: (actionSortOrder += 10),
+					show: true
+				}
+			});
+
+			// wrap the submenu node into a extension node
+			tree.push({
+				order: (extSortOrder += 10),
+				id: `groups.${window.uitools.getPureTitle(ext.extension).replace(" ","_")}`,
+				action: {
+					title: () => ext.extension,
+					actions: extActions
+				}
+			});
+		})
+		return tree;
+	},
+
+	getActionTree: function(){
+		if(this.actionTree.length == 0)
+			this.actionTree = this.buildActionTree();
+
+		return this.actionTree;
+	},
+
+	buildMainMenuArray: function(){
 		// Creates menu that can be pushed to the main menu
 
-		let extActions = this.getGroupedExtensionActions();
-
-		let menu = [];
-		let sortOrder = 0;
-		extActions.forEach(ext =>{
+		let menu = []
+		let extTree = this.getActionTree();
+		extTree.forEach(ext =>{
+			// Unwrap each tree item and reorganize it to a structure
+			// that can be understood by the main menu
 			
-			let itemAction = {
-				title: () => ext.extension,
-				submenu: ext.actions
+			let actionList = ext.action.actions.map(act => {
+				return {
+					grouporder:10,
+					order: act.order,
+					action: actions[act.action]
+				}
+			})
+
+			let extensionAction = {
+				title: ext.action.title,
+				submenu: actionList
 			};
 
 			menu.push({
-				action: itemAction,
 				grouporder: 10,
-				order: (sortOrder += 10)
+				order: ext.order,
+				action: extensionAction
 			});
-		})
-		return menu;
-	}
-}
+		});
 
-extensions.extensionsMenu.refresh()
+		return menu;
+	},
+
+	resetActionTree: function(){
+		// discards all user settings and rebuilds the action tree
+		this.actionTree = this.buildActionTree();
+	},
+
+	moveAction: function(item, target){
+		// moves the provided action to a new parent
+
+		let itemIsGroup = this.objectIsGroup(item);
+		let targetIsGroup = this.objectIsGroup(target);
+
+		if(itemIsGroup){
+			if(targetIsGroup){
+				// group was dropped on different group
+				this.moveToIndex(item, target.order);
+			} 
+			else {
+				if(item.id != target.group){
+					// group was dropped on action in different group, move item
+					// behind the parent of the target
+					let targetIndex = this.getActionParent(target).order + 1;
+					this.moveToIndex(item, targetIndex)
+				} 
+				// else group was dropped on action in same group, nothing to do here
+			}
+		} else{
+			if(targetIsGroup){
+				if(item.group != target.id){
+					// action was dropped on different group, move to last index of the group
+					this.moveActionToGroup(item, target)
+				} 
+					// else action was dropped on same group, nothing to do here
+			} else {
+
+				if(item.group == target.group){
+					// action was dropped on action in same group
+					this.moveToIndex(item, target.order);
+				} else{
+					// action was dropped on action in different group
+					let targetParent = this.getActionParent(target)
+					this.moveActionToGroup(item, targetParent)
+					this.moveToIndex(item, target.order);
+
+				}
+			}
+		}
+
+		this.cleanupGroups();
+	},
+
+	moveActionToGroup: function(item, target){
+		// moves action to the last position of a group
+
+		let newParent = this.actionTree.filter(x => x.id == target.id)[0];
+		let oldParent = this.getActionParent(item)
+		let actionIndex = oldParent.action.actions.findIndex(x => x.id == item.id);
+
+		if(!oldParent || !newParent || actionIndex == null)
+			return;
+
+		// move action to new group, and assign the order 
+		// of the current highest element +10
+
+		newParent.action.actions.sort(this.sortGroup);
+		let highestIndex = newParent.action.actions[newParent.action.actions.length -1].order;
+		newParent.action.actions.push(item);
+		item.order = (highestIndex + 10);
+		item.group = newParent.id;
+
+		// Reorder the old parent by shifting down the order of
+		// all elements beginning from the order of the moved item
+
+		oldParent = oldParent.action.actions;
+		oldParent.splice(actionIndex,1);
+		if(oldParent.length == 0){
+			// the last node was moved away, remove the parent
+			// this.removeGroup(oldParent);
+			return;
+		}
+
+		
+		oldParent.sort(this.sortGroup);
+		let newItemOrder = (actionIndex == 0 ? 10 : (oldParent[actionIndex-1].order) + 10);
+
+		for (let index = actionIndex; index < oldParent.length; index++) {
+			oldParent[index].order = (newItemOrder += 10);
+		}
+	},
+
+	moveToIndex: function(item, index){
+		// moves the item to the specified index of a group
+		// shifting up the order of all elements after it
+
+		let itemParent;
+		if(this.objectIsGroup(item)){
+			itemParent = this.actionTree;
+		} else{
+			itemParent = this.getActionParent(item).action.actions;
+		}
+
+		itemParent.sort(this.sortGroup);
+
+		let itemsBeforeIndex = itemParent.filter(x => x.order <= 30);
+		let lastItemBeforeIndex = itemsBeforeIndex[itemsBeforeIndex.length -1];
+
+		let firstItemIndex = itemParent.findIndex(x => x.order >= index);
+		let currentItemIndex = itemParent.findIndex(x =>x.id == item.id);
+
+		itemParent.splice(firstItemIndex, 0, itemParent.splice(currentItemIndex, 1)[0]);
+
+		// Assign a new order value to each item to 
+		// keep the order in sync with the array position
+
+		let itemOrder = 0;
+		for (let index = 0; index < itemParent.length; index++) {
+			itemParent[index].order = (itemOrder += 10);
+		}
+	},
+
+	getActionParent: function(action){
+		return this.actionTree.filter(x => x.id == action.group)[0];
+	},
+
+	sortGroup: function(a,b) {
+		return a.order-b.order;
+	},
+
+	objectIsGroup: function(object){
+		return object.id.startsWith('group');
+	},
+
+	removeGroup: function(group){
+		if(group.action.actions.length > 0)
+			return;
+
+		let groupIndex = this.actionTree.findIndex(x => x.id == group.id);
+		this.actionTree.splice(groupIndex, 1);
+
+		let newGroupOrder = 0;
+		for (let index = 0; index < this.actionTree.length; index++) {
+			this.actionTree[index].order = (newGroupOrder += 10);
+		}
+	},
+
+	cleanupGroups: function(){
+		// removes all groups without action
+
+		for (let index = this.actionTree.length-1; index >= 0 ; index--) {
+			if(this.actionTree[index].action.actions.length == 0){
+				this.removeGroup(this.actionTree[index]);
+			}
+		}
+	},
+
+	saveSettings: function(){
+		// persists user settings
+
+		app.setValue(this.addonName(), this.actionTree);
+	},
+
+	loadSettings: function(){
+		// loads saved user settings
+
+		let appSettings = app.getValue(this.addonName(), {});
+		return appSettings;
+	}
+
+}
