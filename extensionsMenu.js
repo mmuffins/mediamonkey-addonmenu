@@ -96,14 +96,6 @@ extensions.extensionsMenu = {
 
 		let allActions = this.getExtensionActions();
 
-		// let validActions = allActions.filter(ext => {
-		// 	return (ext.action.hasOwnProperty('execute') 
-		// 	&& ext.action.hasOwnProperty('title')
-		// 	&& ext.action.title instanceof Function
-		// 	&& (ext.action.title())
-		// 	);
-		// });
-
 		let validActions = allActions.filter(ext => {
 			return (actions[ext].hasOwnProperty('execute') 
 			&& actions[ext].hasOwnProperty('title')
@@ -111,10 +103,6 @@ extensions.extensionsMenu = {
 			&& (actions[ext].title())
 			);
 		})
-
-		// validActions.forEach(act => {
-		// 	act.id = `ext.${window.uitools.getPureTitle(act.extension()).replace(" ","_")}.action.${window.uitools.getPureTitle(act.title()).replace(" ","_")}`
-		// })
 		
 		return validActions;
 	},
@@ -172,6 +160,7 @@ extensions.extensionsMenu = {
 				return {
 					action: act,
 					id: `actions.${act}`,
+					type: "action",
 					group: `groups.${window.uitools.getPureTitle(ext.extension).replace(" ","_")}`,
 					order: (actionSortOrder += 10),
 					show: true
@@ -182,10 +171,9 @@ extensions.extensionsMenu = {
 			tree.push({
 				order: (extSortOrder += 10),
 				id: `groups.${window.uitools.getPureTitle(ext.extension).replace(" ","_")}`,
-				action: {
-					title: () => ext.extension,
-					actions: extActions
-				}
+				title: ext.extension,
+				type: "group",
+				actions: extActions
 			});
 		})
 		return tree;
@@ -207,7 +195,7 @@ extensions.extensionsMenu = {
 			// Unwrap each tree item and reorganize it to a structure
 			// that can be understood by the main menu
 			
-			let actionList = ext.action.actions.map(act => {
+			let actionList = ext.actions.map(act => {
 				return {
 					grouporder:10,
 					order: act.order,
@@ -216,7 +204,7 @@ extensions.extensionsMenu = {
 			})
 
 			let extensionAction = {
-				title: ext.action.title,
+				title: () => ext.title,
 				submenu: actionList
 			};
 
@@ -238,11 +226,8 @@ extensions.extensionsMenu = {
 	moveAction: function(item, target){
 		// moves the provided action to a new parent
 
-		let itemIsGroup = this.objectIsGroup(item);
-		let targetIsGroup = this.objectIsGroup(target);
-
-		if(itemIsGroup){
-			if(targetIsGroup){
+		if(item.type == "group"){
+			if(target.type == "group"){
 				// group was dropped on different group
 				this.moveToIndex(item, target.order);
 			} 
@@ -256,7 +241,7 @@ extensions.extensionsMenu = {
 				// else group was dropped on action in same group, nothing to do here
 			}
 		} else{
-			if(targetIsGroup){
+			if(target.type == "group"){
 				if(item.group != target.id){
 					// action was dropped on different group, move to last index of the group
 					this.moveActionToGroup(item, target)
@@ -285,7 +270,7 @@ extensions.extensionsMenu = {
 
 		let newParent = this.actionTree.filter(x => x.id == target.id)[0];
 		let oldParent = this.getActionParent(item)
-		let actionIndex = oldParent.action.actions.findIndex(x => x.id == item.id);
+		let actionIndex = oldParent.actions.findIndex(x => x.id == item.id);
 
 		if(!oldParent || !newParent || actionIndex == null)
 			return;
@@ -293,16 +278,16 @@ extensions.extensionsMenu = {
 		// move action to new group, and assign the order 
 		// of the current highest element +10
 
-		newParent.action.actions.sort(this.sortGroup);
-		let highestIndex = newParent.action.actions[newParent.action.actions.length -1].order;
-		newParent.action.actions.push(item);
+		newParent.actions.sort(this.sortGroup);
+		let highestIndex = newParent.actions[newParent.actions.length -1].order;
+		newParent.actions.push(item);
 		item.order = (highestIndex + 10);
 		item.group = newParent.id;
 
 		// Reorder the old parent by shifting down the order of
 		// all elements beginning from the order of the moved item
 
-		oldParent = oldParent.action.actions;
+		oldParent = oldParent.actions;
 		oldParent.splice(actionIndex,1);
 		if(oldParent.length == 0){
 			// the last node was moved away, remove the parent
@@ -324,10 +309,10 @@ extensions.extensionsMenu = {
 		// shifting up the order of all elements after it
 
 		let itemParent;
-		if(this.objectIsGroup(item)){
+		if(item.type == "group"){
 			itemParent = this.actionTree;
 		} else{
-			itemParent = this.getActionParent(item).action.actions;
+			itemParent = this.getActionParent(item).actions;
 		}
 
 		itemParent.sort(this.sortGroup);
@@ -350,22 +335,18 @@ extensions.extensionsMenu = {
 	},
 
 	getActionParent: function(action){
-		return this.actionTree.filter(x => x.id == action.group)[0];
+		return this.actionTree.filter(x => x.type == "group" && x.id == action.group)[0];
 	},
 
 	sortGroup: function(a,b) {
 		return a.order-b.order;
 	},
 
-	objectIsGroup: function(object){
-		return object.id.startsWith('group');
-	},
-
 	removeGroup: function(group){
-		if(group.action.actions.length > 0)
+		if(group.actions.length > 0)
 			return;
 
-		let groupIndex = this.actionTree.findIndex(x => x.id == group.id);
+		let groupIndex = this.actionTree.findIndex(x => x.type == "group" && x.id == group.id);
 		this.actionTree.splice(groupIndex, 1);
 
 		let newGroupOrder = 0;
@@ -378,7 +359,7 @@ extensions.extensionsMenu = {
 		// removes all groups without action
 
 		for (let index = this.actionTree.length-1; index >= 0 ; index--) {
-			if(this.actionTree[index].action.actions.length == 0){
+			if(this.actionTree[index].actions.length == 0){
 				this.removeGroup(this.actionTree[index]);
 			}
 		}

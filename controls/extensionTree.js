@@ -37,17 +37,19 @@ inheritClass('ExtensionTree', CheckboxTree, {
         }
     },
 
-    runFuncOnHittest: function (e) {
-        // console.log(window.dnd.getFocusedItemHandler.call(this, e))
-        // console.log(this.getItemFromRelativePosition.call(this,offsetX, offsetY))
-        // console.log(dnd.getDropDataType(e))
-        return window.dnd.getFocusedItemHandler.call(this, e);
-    },
+    // runFuncOnHittest: function (e) {
+    //     // console.log(window.dnd.getFocusedItemHandler.call(this, e))
+    //     // console.log(this.getItemFromRelativePosition.call(this,offsetX, offsetY))
+    //     // console.log(dnd.getDropDataType(e))
+    //     console.log(this.findDNDHandler(e));
+    //     return window.dnd.getFocusedItemHandler.call(this, e);
+    // },
 
-    canDrop: function (e) {
-        // return TreeView.prototype.runFuncOnHittest.call(this,e);
-        return this.runFuncOnHittest(e);
-    },
+    // canDrop: function (e) {
+    //     // return TreeView.prototype.runFuncOnHittest.call(this,e);
+        
+    //     return this.runFuncOnHittest(e) ? true : true;
+    // },
 
 
     drop: function (e) {
@@ -62,12 +64,12 @@ inheritClass('ExtensionTree', CheckboxTree, {
         let srcObject = dnd.getDragObject(e);
         let datatype = dnd.getDropDataType(e);
 
-        if(srcObject.id.startsWith('action')){
+        if(srcObject.type == 'action'){
             // Nodes tend to forget their checked status when they are moved between
             // parents, set their status again
             let ctrl = e.dataTransfer.getSourceControl();
             let targetParentNode
-            if(this._dropNode.dataSource.id.startsWith('groups')){
+            if(this._dropNode.dataSource.type =='group'){
                 targetParentNode = ctrl.controlClass.dataSource.root.findChild(`${datatype}:${this._dropNode.dataSource.id}`);
             } else {
                 targetParentNode = ctrl.controlClass.dataSource.root.findChild(`${datatype}:${this._dropNode.dataSource.group}`);

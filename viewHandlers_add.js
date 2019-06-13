@@ -22,22 +22,22 @@ nodeHandlers.extensionsMenuTreeRoot = inheritNodeHandler('extensionsMenuTreeRoot
 
 nodeHandlers.extensionsMenuNode = inheritNodeHandler('extensionsMenuNode', 'Base', {
     hideCheckbox: function (node) {
-        return node.id.startsWith('groups');
+        return node.type == 'group';
     },
 
     title: function (node) {
-        var nodeTitle = node.dataSource.action.hasOwnProperty('title') ? node.dataSource.action.title() : actions[node.dataSource.action].title();
+        var nodeTitle = node.dataSource.hasOwnProperty('title') ? node.dataSource.title : actions[node.dataSource.action].title();
         return window.uitools.getPureTitle(nodeTitle);
     },
 
     hasChildren: function(node){
-        return (node.dataSource.hasOwnProperty('action') && node.dataSource.action.hasOwnProperty('actions') && node.dataSource.action.actions.length > 0);
+        return (node.dataSource.hasOwnProperty('actions') && node.dataSource.actions.length > 0);
     },
 
     getChildren: function (node) {
         return new Promise(function (resolve, reject) {
             if(nodeHandlers[node.handlerID].hasChildren(node)){
-                node.dataSource.action.actions.forEach(itm => {
+                node.dataSource.actions.forEach(itm => {
                     node.addChild(itm,'extensionsMenuNode')
                 });
             }
@@ -63,11 +63,11 @@ nodeHandlers.extensionsMenuNode = inheritNodeHandler('extensionsMenuNode', 'Base
             let targetParent;
             let srcObjectParent
 
-            if(!srcObject.id.startsWith('group')){
+            if(!(srcObject.type == 'group')){
                 srcObjectParent = ctrl.controlClass.dataSource.root.findChild(`${datatype}:${srcObject.group}`);
                 targetParent = e._dropNode.parent;
 
-                if(dataSource.id.startsWith("groups")){
+                if(dataSource.type == "group"){
                     // element was dropped on a group, use the target node as parent
                     targetParent = e._dropNode;
                 } 
@@ -84,7 +84,7 @@ nodeHandlers.extensionsMenuNode = inheritNodeHandler('extensionsMenuNode', 'Base
             nodeUtils.refreshNodeChildren(ctrl.controlClass.root);
 
 
-            if(!srcObject.id.startsWith('group')){
+            if(!(srcObject.type == "group")){
                 nodeUtils.refreshNodeChildren(targetParent);
 
                 if(targetParent.persistentID != srcObjectParent.persistentID){
