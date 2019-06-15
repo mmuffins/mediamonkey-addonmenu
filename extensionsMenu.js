@@ -94,7 +94,7 @@ extensions.extensionsMenu = {
 			.filter((key) => actions[key].hasOwnProperty("extension") 
 				&& actions[key].extension instanceof Function
 				&& (actions[key].extension()))
-			// .map(function(key){return {key:key,action:actions[key]}})
+			.map(function(key){return {key:key,action:actions[key]}})
 	},
 
 	getValidActions: function(){
@@ -103,40 +103,36 @@ extensions.extensionsMenu = {
 		let allActions = this.getExtensionActions();
 
 		let validActions = allActions.filter(ext => {
-			return (actions[ext].hasOwnProperty('execute') 
-			&& actions[ext].hasOwnProperty('title')
-			&& actions[ext].title instanceof Function
-			&& (actions[ext].title())
+			return (ext.action.hasOwnProperty('execute') 
+			&& ext.action.hasOwnProperty('title')
+			&& ext.action.title instanceof Function
+			&& (ext.action.title())
 			);
 		})
 		
 		return validActions;
 	},
 
-	getExtensionList: function(){
+	getExtensionList: function(actionObjects){
 		// Returns the grouped extension list of all loaded actions
 
-		let validActions = this.getValidActions();
-		// return [...new Set(extensionActions.map(x => x.action.extension()))]
-		return [...new Set(validActions.map(act => actions[act].extension()))]
-
+		return [...new Set(actionObjects.map(act => act.action.extension()))]
 	},
 
-	groupActions: function(){
+	groupActions: function(actionObjects){
 		// returns an array of all valid actions grouped by their extension;
 
 		let groupedActions = [];
-		let validActions = this.getValidActions();
-		let extensionList = this.getExtensionList();
+		let extensionList = this.getExtensionList(actionObjects);
 
 		// expand valid actions to full object to be able to group them
-		let actionFunctions = Object.keys(actions)
-			.filter(key => validActions.includes(key))
-			.map(function(key){return {key:key,action:actions[key]}})
+		// let actionFunctions = Object.keys(actions)
+		// 	.filter(key => validActions.includes(key))
+		// 	.map(function(key){return {key:key,action:actions[key]}})
 		
 		// get the actions for each extension and group them
 		extensionList.forEach(ext =>{
-			let filteredActions = actionFunctions
+			let filteredActions = actionObjects
 				.filter(act => act.action.extension() == ext)
 				.map(act => act.key)
 
@@ -149,16 +145,16 @@ extensions.extensionsMenu = {
 		return groupedActions;
 	},
 
-	buildActionTree: function(){
-		// Creates an extension tree from the currently loaded actions
+	buildNodeTree: function(actionObjects){
+		// builds a node tree from a list of actions
 
-		let extActions = this.groupActions();
-		extActions.sort();
+		let groupedActions = this.groupActions(actionObjects);
+		groupedActions.sort();
 
-		let tree = [];
+		let nodeTree = [];
 
 		let extSortOrder = 0;
-		extActions.forEach(ext =>{
+		groupedActions.forEach(ext =>{
 
 			// map each action with its order within the extension and an unique ID
 			let actionSortOrder = 0;
@@ -174,7 +170,7 @@ extensions.extensionsMenu = {
 			});
 
 			// wrap the submenu node into a extension node
-			tree.push({
+			nodeTree.push({
 				order: (extSortOrder += 10),
 				id: `groups.${window.uitools.getPureTitle(ext.extension).replace(" ","_")}`,
 				group: "root",
@@ -183,12 +179,70 @@ extensions.extensionsMenu = {
 				actions: extActions
 			});
 		})
-		return tree;
+		return nodeTree;
+	},
+
+	buildActionTree: function(){
+		// Creates an extension tree from the currently loaded actions
+
+		let validActions = this.getValidActions();
+		return this.buildNodeTree(validActions);
+
+	},
+
+	buildUserActionTree: function(){
+		// Creates an extension tree from the currently loaded actions
+		// and applies user settings to it
+
+		let validActions = this.getValidActions();
+		let userSettings = this.loadSettings();
+		userSettings.sort(this.sortGroup);
+
+		// only include extension actions if they have not been saved before
+		let validActionsKeys = validActions.map(itm => itm.key);
+		let userSettingsKeys = userSettings
+			.filter(itm => itm.type == 'action')
+			.map(itm => itm.action);
+
+		validActionsKeys = validActionsKeys.filter(itm => !userSettingsKeys.includes(itm))
+		let extActions = validActions.filter(itm => validActionsKeys.includes(itm.key))
+
+		// create node tree from the filtered actions
+		let actionNodes = this.buildNodeTree(extActions);
+
+		// build node tree from loaded user settings
+		let userActions = userSettings.filter(itm => itm.type == 'action');
+		let userGroups = userSettings.filter(itm => itm.type == 'group');
+
+		let actionTree = []
+		userGroups.forEach(grp => {
+			let grpActions = userActions.filter(act => act.group == grp.id);
+			// grp.order = (groupOrder += 10);
+			grp.actions = grpActions;
+			actionTree.push(grp);
+		});
+
+		let rootActions = userActions.filter(act => act.group == 'root');
+		rootActions.forEach(act =>{
+			actionTree.push(act);
+		})
+
+		actionTree.sort(this.sortGroup);
+
+		// add all new actions to the bottom of the list
+		let groupOrder = actionTree[actionTree.length -1].order;
+
+		actionNodes.forEach(node => {
+			node.order = (groupOrder += 10);
+			actionTree.push(node);
+		})
+
+		return actionTree;
 	},
 
 	getActionTree: function(){
 		if(this.actionTree.length == 0)
-			this.actionTree = this.buildActionTree();
+			this.actionTree = this.buildUserActionTree();
 
 		return this.actionTree;
 	},
@@ -205,7 +259,9 @@ extensions.extensionsMenu = {
 
 		let menu = []
 		let extTree = this.getActionTree();
-		extTree.forEach(ext =>{
+		let groups = extTree.filter(itm => itm.type == "group");
+
+		groups.forEach(ext =>{
 			// Unwrap each tree item and reorganize it to a structure
 			// that can be understood by the main menu
 			
@@ -228,6 +284,17 @@ extensions.extensionsMenu = {
 				grouporder: 10,
 				order: ext.order,
 				action: extensionAction
+			});
+		});
+
+		let rootActions = extTree
+			.filter(itm => itm.type == "action" && itm.group == "root");
+
+		rootActions.forEach(ext =>{
+			menu.push({
+				grouporder: 10,
+				order: ext.order,
+				action: actions[ext.action]
 			});
 		});
 
@@ -291,6 +358,7 @@ extensions.extensionsMenu = {
 			} 
 			// else action was dropped on same group, nothing to do here
 		}
+		this.cleanupGroups();
 	},
 
 	moveActionToGroup: function(item, target){
@@ -401,16 +469,43 @@ extensions.extensionsMenu = {
 	},
 
 	saveSettings: function(){
-		// persists user settings
+		// persists user settings		
 
-		app.setValue(this.addonName(), this.actionTree);
+		// flatten the array to save all actions and groups as
+		// list for easier comparison when loading them later
+		
+		let saveArr = this.actionTree
+			.filter(itm => itm.type == 'group')
+			.map(itm => itm = itm.actions)
+			.flat();
+
+		let rootActions = this.actionTree
+			.filter(itm => itm.type == 'action');
+
+		// also append the empty groups to preserve their names and order
+
+		let rootGroups = this.actionTree
+			.filter(itm => itm.type == 'group')
+			.map(itm => {
+				return {
+					id: itm.id,
+					group: itm.group,
+					order: itm.order,
+					title: itm.title,
+					type: itm.type
+				}
+			})
+
+		saveArr.push(...rootActions);
+		saveArr.push(...rootGroups);
+			
+		app.setValue(this.addonName(), saveArr);
 	},
 
 	loadSettings: function(){
 		// loads saved user settings
 
-		let appSettings = app.getValue(this.addonName(), {});
-		return appSettings;
+		return app.getValue(this.addonName(), []);
 	}
 
 }
