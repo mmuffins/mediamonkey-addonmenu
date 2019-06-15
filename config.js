@@ -30,7 +30,6 @@ window.configInfo = {
         TV.controlClass.expandAll()
         
         app.listen(UI.btnInputPluginAbout, 'click', async () => await _this.getTreeItems());
-        app.listen(UI.btnInputPluginConf, 'click', async () => await _this.saveHandler());
         app.listen(UI.btnReset, 'click', () => {
             extensions.extensionsMenu.resetActionTree();
 
@@ -43,18 +42,8 @@ window.configInfo = {
     },
 
     save: function(panel, addon){
-        alert('save')
         extensions.extensionsMenu.saveSettings();
         extensions.extensionsMenu.refresh();
-    },
-
-
-    saveHandler: async function(){
-        alert('savehandler')
-
-        let _this = this;
-        let nodeTree = await _this.getTreeItems();
-        let extensionTree = _this.convertToExtensionTree(nodeTree);
     },
 
     convertToExtensionTree: function(nodeTree){

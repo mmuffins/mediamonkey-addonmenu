@@ -1,8 +1,7 @@
 "use strict";
 
 // Add global section to register extension actions if it doesn't exist yet
-if (typeof extensions == "undefined")
-	extensions = {}
+extensions = extensions || {};
 	
 extensions.extensionsMenu = {
 	actionTree: [],
@@ -213,12 +212,12 @@ extensions.extensionsMenu = {
 			let actionList = ext.actions
 				.filter(act => act.show == true)
 				.map(act => {
-				return {
-					grouporder:10,
-					order: act.order,
-					action: actions[act.action]
-				}
-			})
+					return {
+						grouporder:10,
+						order: act.order,
+						action: actions[act.action]
+					}
+				})
 
 			let extensionAction = {
 				title: () => ext.title,
