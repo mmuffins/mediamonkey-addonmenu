@@ -4,12 +4,17 @@
 extensions = extensions || {};
 	
 extensions.extensionsMenu = {
-	actionTree: [],
 
 	rootNode: {
 		type: "root",
 		id: "root",
-		actions: this.actionTree
+		actions: []
+	},
+
+	editNode: {
+		type: "root",
+		id: "root",
+		actions: []
 	},
 
 	miscCategoryName: "Misc",
@@ -64,27 +69,6 @@ extensions.extensionsMenu = {
 		window.mainMenuItems.sort((a,b) =>  !a.hasOwnProperty('order') || a.order > b.order);
 		uitools.switchMainMenu(false);
 		uitools.switchMainMenu(true);
-	},
-
-	getCategories: function(){
-		// returns an array with all categories in the menu
-		return [...new Set(this.menu.map(x => x.category))];
-	},
-
-	sortMenu: function(){
-		// sorts the menu by category
-
-		// get list of all categories and add a sort value
-		let cat = this.getCategories().sort();
-		let catOrder = {};
-		for (let index = 0; index < cat.length; index++) {
-			catOrder[cat[index]] = (index + 1) * 100;
-		}
-
-		// update each menu item with the sort index
-		this.menu.forEach(el => {
-			el.grouporder = catOrder[el.category]
-		});
 	},
 
 	getExtensionActions: function(){
@@ -240,25 +224,35 @@ extensions.extensionsMenu = {
 		return actionTree;
 	},
 
-	getActionTree: function(){
-		if(this.actionTree.length == 0)
-			this.actionTree = this.buildUserActionTree();
-
-		return this.actionTree;
-	},
-
 	getRootNode: function(){
-		if(!this.rootNode.actions)
-			this.rootNode.actions = this.getActionTree();
+		// returns the main extension menu root node
+		if(this.rootNode.actions.length == 0)
+			this.rootNode.actions = this.buildUserActionTree();
 				
 		return this.rootNode;
+	},
+
+	getEditRootNode: function(){
+		// returns a temporary extension menu root node
+		if(this.editNode.actions.length == 0)
+			this.editNode.actions = this.buildUserActionTree();
+		
+		return this.editNode;
+	},
+
+	applyChanges: function(){
+		// applies all changes from the edit root nod
+		// to the main root node
+
+		this.rootNode.actions = this.editNode.actions;
+		this.discardChanges();
 	},
 
 	buildMainMenuArray: function(){
 		// Creates menu that can be pushed to the main menu
 
 		let menu = []
-		let extTree = this.getActionTree();
+		let extTree = this.getRootNode().actions;
 		let groups = extTree.filter(itm => itm.type == "group");
 
 		groups.forEach(ext =>{
@@ -303,14 +297,20 @@ extensions.extensionsMenu = {
 
 	resetActionTree: function(){
 		// discards all user settings and rebuilds the action tree
-		this.actionTree = this.buildActionTree();
-		this.rootNode.actions = this.actionTree;
+		this.rootNode.actions = this.buildActionTree();
+		this.editNode.actions = this.buildActionTree();
+	},	
+	
+	discardChanges: function(){
+		// discards all changes in the edit root node
+		this.editNode.actions = this.buildUserActionTree();
 	},
 
 	moveGroup: function(group, target){
 		// moves the provided group to a new parent
 
-		this.actionTree.sort(this.sortGroup);
+		
+		this.editNode.actions.sort(this.sortGroup);
 
 		if(target.type == "action"){
 			if(target.group == "root"){
@@ -332,7 +332,7 @@ extensions.extensionsMenu = {
 				this.moveToIndex(group, target.order);
 			} else {
 				// group was dropped on root, move the group to the last index
-				this.moveToIndex(group, this.actionTree[this.actionTree.length -1].order);
+				this.moveToIndex(group, this.editNode.actions[this.editNode.actions.length -1].order);
 			}
 		}
 	},
@@ -366,7 +366,7 @@ extensions.extensionsMenu = {
 
 		let oldParent = this.getActionParent(item)
 		let actionIndex = oldParent.actions.findIndex(x => x.id == item.id);
-		let newParent = (target.type == 'root' ? this.rootNode : this.actionTree.filter(x => x.id == target.id)[0]);
+		let newParent = (target.type == 'root' ? this.editNode : this.editNode.actions.filter(x => x.id == target.id)[0]);
 
 		if(!oldParent || !newParent || actionIndex == null)
 			return;
@@ -426,7 +426,7 @@ extensions.extensionsMenu = {
 	},
 
 	getActionParent: function(action){
-		return (action.group == "root" ? this.rootNode : this.actionTree.filter(x => x.type == "group" && x.id == action.group)[0]);
+		return (action.group == "root" ? this.editNode : this.editNode.actions.filter(x => x.type == "group" && x.id == action.group)[0]);
 	},
 
 	sortGroup: function(a,b) {
@@ -444,26 +444,26 @@ extensions.extensionsMenu = {
 		// if(group.actions.length > 0)
 		// 	return;
 
-		let groupIndex = this.actionTree.findIndex(x => x.type == "group" && x.id == group.id);
+		let groupIndex = this.editNode.actions.findIndex(x => x.type == "group" && x.id == group.id);
 		if(group.actions.length > 0){
-			group.actions.forEach(action => this.moveActionToGroup(action, this.rootNode));
+			group.actions.forEach(action => this.moveActionToGroup(action, this.editNode.actions));
 		}
 
-		this.actionTree.splice(groupIndex, 1);
+		this.editNode.actions.splice(groupIndex, 1);
 
 		let newGroupOrder = 0;
-		for (let index = 0; index < this.actionTree.length; index++) {
-			this.actionTree[index].order = (newGroupOrder += 10);
+		for (let index = 0; index < this.editNode.actions.length; index++) {
+			this.editNode.actions[index].order = (newGroupOrder += 10);
 		}
 	},
 
 	cleanupGroups: function(){
 		// removes all groups without action
 
-		for (let index = this.actionTree.length-1; index >= 0 ; index--) {
-			const treeElement = this.actionTree[index];
+		for (let index = this.editNode.actions.length-1; index >= 0 ; index--) {
+			const treeElement = this.editNode.actions[index];
 			if(treeElement.type != "action" && treeElement.actions.length == 0){
-				this.removeGroup(this.actionTree[index]);
+				this.removeGroup(this.editNode.actions[index]);
 			}
 		}
 	},
@@ -474,17 +474,17 @@ extensions.extensionsMenu = {
 		// flatten the array to save all actions and groups as
 		// list for easier comparison when loading them later
 		
-		let saveArr = this.actionTree
+		let saveArr = this.rootNode.actions
 			.filter(itm => itm.type == 'group')
 			.map(itm => itm = itm.actions)
 			.flat();
 
-		let rootActions = this.actionTree
+		let rootActions = this.rootNode.actions
 			.filter(itm => itm.type == 'action');
 
 		// also append the empty groups to preserve their names and order
 
-		let rootGroups = this.actionTree
+		let rootGroups = this.rootNode.actions
 			.filter(itm => itm.type == 'group')
 			.map(itm => {
 				return {

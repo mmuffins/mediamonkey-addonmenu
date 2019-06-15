@@ -24,8 +24,9 @@ window.configInfo = {
         let TV = UI.lvTreeView;
         let ds = TV.controlClass.dataSource;
 
+        extensions.extensionsMenu.discardChanges();
         ds.root.handlerID = 'extensionsMenuTreeRoot';
-        ds.root.dataSource = extensions.extensionsMenu.getRootNode();
+        ds.root.dataSource = extensions.extensionsMenu.getEditRootNode();
 
         TV.controlClass.expandAll()
         
@@ -35,13 +36,15 @@ window.configInfo = {
 
             let tree = app.createTree();
             tree.root.handlerID = 'extensionsMenuTreeRoot';
-            tree.root.dataSource = extensions.extensionsMenu.getRootNode();
+            tree.root.dataSource = extensions.extensionsMenu.getEditRootNode();
             TV.controlClass.dataSource = tree;
             TV.controlClass.expandAll()
         });
     },
 
     save: function(panel, addon){
+        extensions.extensionsMenu.applyChanges()
+        extensions.extensionsMenu.discardChanges();
         extensions.extensionsMenu.saveSettings();
         extensions.extensionsMenu.refresh();
     },
