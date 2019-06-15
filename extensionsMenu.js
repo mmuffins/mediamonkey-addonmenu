@@ -245,9 +245,14 @@ extensions.extensionsMenu = {
 		this.actionTree.sort(this.sortGroup);
 
 		if(target.type == "action"){
+			if(target.group == "root"){
+				// move group behind target in root
+				this.moveToIndex(group, target.order)
+				return;
+			}
+
 			if(group.id != target.group){
 				// group was dropped on an action in a different group
-
 				// action is in a group, move the current group behind the parent of the target
 				let targetIndex = this.getActionParent(target).order;
 				this.moveToIndex(group, targetIndex)
@@ -279,7 +284,7 @@ extensions.extensionsMenu = {
 				this.moveToIndex(action, target.order);
 			}
 		} else{
-			if(action.group != target.id){
+			if(action.group != target.id || target.id == "root"){
 				// action was dropped on different group, move to last index of the group
 				this.moveActionToGroup(action, target)
 			} 
@@ -290,9 +295,9 @@ extensions.extensionsMenu = {
 	moveActionToGroup: function(item, target){
 		// moves action to the last position of a group
 
-		let newParent = this.actionTree.filter(x => x.id == target.id)[0];
 		let oldParent = this.getActionParent(item)
 		let actionIndex = oldParent.actions.findIndex(x => x.id == item.id);
+		let newParent = (target.type == 'root' ? this.rootNode : this.actionTree.filter(x => x.id == target.id)[0]);
 
 		if(!oldParent || !newParent || actionIndex == null)
 			return;
@@ -301,9 +306,13 @@ extensions.extensionsMenu = {
 		// of the current highest element +10
 
 		newParent.actions.sort(this.sortGroup);
+		let highestOrder = 0;
+		if(newParent.actions.length > 0)
+			highestOrder = newParent.actions[newParent.actions.length - 1].order
 
 		newParent.actions.push(item);
 		item.group = newParent.id;
+		item.order = highestOrder + 10
 
 		// Reorder the old parent by shifting down the order of
 		// all elements beginning from the order of the moved item

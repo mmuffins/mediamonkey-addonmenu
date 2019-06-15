@@ -54,21 +54,21 @@ inheritClass('ExtensionTree', CheckboxTree, {
 
     drop: function (e) {
 
-        if(e.path[0].classList[0] == "lvViewport"){
-            // object was dropped inside the treeview element but not on a node
-            // move the element to the top level
-            let handler = nodeHandlers[this._dropNode.handlerID];
-            if (handler && handler.drop) {
-                e._dropNode = extensions.extensionsMenu.getRootNode();
-                handler.drop(this.dataSource.root.dataSource, e);
-            }
-        }
-
         if (this._lastDropNodeResult /* this property is from window.dnd.getFocusedItemHandler */ ) {
             let handler = nodeHandlers[this._dropNode.handlerID];
             if (handler && handler.drop) {
                 e._dropNode = this._dropNode;
                 handler.drop(this._dropNode.dataSource, e);
+            }
+        }
+
+        if(e.path[0].classList[0] == "lvViewport"){
+            // object was dropped inside the treeview element but not on a node
+            // move the element to the top level
+            let handler = nodeHandlers['extensionsMenuTreeRoot'];
+            if (handler && handler.drop) {
+                e._dropNode = this.dataSource.root;
+                handler.drop(this.dataSource.root.dataSource, e);
             }
         }
 
@@ -79,12 +79,12 @@ inheritClass('ExtensionTree', CheckboxTree, {
             // Nodes tend to forget their checked status when they are moved between
             // parents, set their status again
             let ctrl = e.dataTransfer.getSourceControl();
-            let targetParent
 
-            if(this._dropNode.dataSource.type == 'action'){
-                targetParent = ctrl.controlClass.dataSource.root.findChild(`extensionsGroupNode:${this._dropNode.dataSource.group}`);
-            } else {
-                targetParent = ctrl.controlClass.dataSource.root.findChild(`extensionsGroupNode:${this._dropNode.dataSource.id}`);
+            let parentType = srcObjectNode.group.split(".")[0]
+            let targetParent = this.dataSource.root;
+
+            if(parentType == "groups"){
+                targetParent = ctrl.controlClass.dataSource.root.findChild(`extensionsGroupNode:${srcObjectNode.group}`);
             }
     
             let srcObject = targetParent.findChild(`${datatype}:${srcObjectNode.id}`);

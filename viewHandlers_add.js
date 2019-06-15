@@ -11,17 +11,48 @@ nodeHandlers.extensionsMenuTreeRoot = inheritNodeHandler('extensionsMenuTreeRoot
                 if(itm.type == "group"){
                     node.addChild(itm,'extensionsGroupNode')
                 } else{
-                node.addChild(itm,'extensionsMenuNode')
+                    node.addChild(itm,'extensionsMenuNode')
                 }
             })
             resolve();
         });
     },
-    checked: function(node){
-        return new Promise(function (resolve, reject) {
-            resolve(true);
-        });
-    }
+
+    drop: function (dataSource, e, index) {
+        let srcObjectNode = dnd.getDragObject(e);
+        
+        // datatype of the element that was dropped
+        let datatype = dnd.getDropDataType(e);
+        
+        if (srcObjectNode && (datatype == 'extensionsGroupNode' || datatype == 'extensionsMenuNode')) {
+
+            // the details of the datasource will change after it has been
+            // moved, save the current details for later
+            let ctrl = e.dataTransfer.getSourceControl();
+            let srcObjectParent;
+            if(srcObjectNode.group == "root"){
+                srcObjectParent =  ctrl.controlClass.dataSource.root;
+            } else {
+                srcObjectParent = ctrl.controlClass.dataSource.root.findChild(`extensionsGroupNode:${srcObjectNode.group}`);
+            }
+
+            let targetParent = ctrl.controlClass.dataSource.root;
+
+            if(datatype == 'extensionsMenuNode'){
+                extensions.extensionsMenu.moveAction(srcObjectNode,dataSource);
+                ctrl.controlClass.dataSource.notifyChanged();
+                if(targetParent.persistentID != srcObjectParent.persistentID){
+                    // parent has changed, also update source node
+                    nodeUtils.refreshNodeChildren(srcObjectParent);
+                }
+            } else {
+                extensions.extensionsMenu.moveGroup(srcObjectNode,dataSource);
+            }
+
+            ctrl.controlClass.dataSource.notifyChanged();
+            nodeUtils.refreshNodeChildren(ctrl.controlClass.root);
+        }
+    },
 });
 
 nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Base', {
@@ -52,7 +83,7 @@ nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Ba
 
     drop: function (dataSource, e, index) {
         let srcObjectNode = dnd.getDragObject(e);
-        
+
         // datatype of the element that was dropped
         let datatype = dnd.getDropDataType(e);
         
@@ -76,8 +107,8 @@ nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Ba
             if(datatype == "extensionsMenuNode"){
                 // if the dropped element was an action it will be moved
                 // to the item it has been dropped on
-                    targetParent = e._dropNode;
-                } 
+                targetParent = e._dropNode;
+            } 
 
             if(datatype == 'extensionsMenuNode'){
                 extensions.extensionsMenu.moveAction(srcObjectNode,dataSource);
@@ -90,7 +121,7 @@ nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Ba
 
             if(datatype == 'extensionsMenuNode'){
                 nodeUtils.refreshNodeChildren(targetParent);
-
+    
                 if(targetParent.persistentID != srcObjectParent.persistentID){
                     // parent has changed, also update source node
                     nodeUtils.refreshNodeChildren(srcObjectParent);
@@ -162,7 +193,7 @@ nodeHandlers.extensionsMenuNode = inheritNodeHandler('extensionsMenuNode', 'Base
                 extensions.extensionsMenu.moveAction(srcObjectNode,dataSource);
             } else {
                 extensions.extensionsMenu.moveGroup(srcObjectNode,dataSource);
-    }
+            }
 
             ctrl.controlClass.dataSource.notifyChanged();
             nodeUtils.refreshNodeChildren(ctrl.controlClass.root);
