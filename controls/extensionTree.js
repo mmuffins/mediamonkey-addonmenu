@@ -37,19 +37,10 @@ inheritClass('ExtensionTree', CheckboxTree, {
         }
     },
 
-    // runFuncOnHittest: function (e) {
-    //     // console.log(window.dnd.getFocusedItemHandler.call(this, e))
-    //     // console.log(this.getItemFromRelativePosition.call(this,offsetX, offsetY))
-    //     // console.log(dnd.getDropDataType(e))
-    //     console.log(this.findDNDHandler(e));
-    //     return window.dnd.getFocusedItemHandler.call(this, e);
-    // },
-
-    // canDrop: function (e) {
-    //     // return TreeView.prototype.runFuncOnHittest.call(this,e);
-        
-    //     return this.runFuncOnHittest(e) ? true : true;
-    // },
+    canDrop: function (e) {
+        TreeView.prototype.runFuncOnHittest.call(this,e);
+        return true;
+    },
 
 
     drop: function (e) {
@@ -86,7 +77,7 @@ inheritClass('ExtensionTree', CheckboxTree, {
             if(parentType == "groups"){
                 targetParent = ctrl.controlClass.dataSource.root.findChild(`extensionsGroupNode:${srcObjectNode.group}`);
             }
-    
+
             let srcObject = targetParent.findChild(`${datatype}:${srcObjectNode.id}`);
             srcObject.checked = srcObjectNode.show;
         }
