@@ -45,34 +45,6 @@ window.configInfo = {
         extensions.extensionsMenu.saveSettings();
         extensions.extensionsMenu.refresh();
     },
-
-    convertToExtensionTree: function(nodeTree){
-        // converts a node tree to an extension tree
-
-        let extensionTree = nodeTree.map(node => {
-            let nodeChildren = node.children.map(child => {
-                return {
-                    id: child.id.replace(`${child.handlerID}:`,""),
-                    action: child.id.replace(`${child.handlerID}:`,"").replace('actions.',''),
-                    order: child.order,
-                    show: child.checked,
-                    // title: child.title
-                }
-            });
-
-            return {
-                id: node.id.replace(`${node.handlerID}:`,""),
-                order: node.order,
-                action: {
-                    title: () => `_(&${node.title})`,
-                    actions: nodeChildren
-                }
-            };
-        })
-
-        return extensionTree;
-    },
-
     
      newCollection: function() {    
         var newItem = collections.getNewCollection();
