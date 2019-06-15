@@ -210,7 +210,9 @@ extensions.extensionsMenu = {
 			// Unwrap each tree item and reorganize it to a structure
 			// that can be understood by the main menu
 			
-			let actionList = ext.actions.map(act => {
+			let actionList = ext.actions
+				.filter(act => act.show == true)
+				.map(act => {
 				return {
 					grouporder:10,
 					order: act.order,
