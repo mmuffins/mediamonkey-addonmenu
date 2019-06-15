@@ -73,65 +73,6 @@ window.configInfo = {
         return extensionTree;
     },
 
-    getTreeItems: async function(){
-        // returns full tree of all items in the treeview
-
-        const _this = this;
-        const ds = UI.lvTreeView.controlClass.dataSource;
-
-        let nodeTree = [];
-        let order = 0;
-
-        // workaround because ds.root.children is not iterable
-        var childArr = [];
-        ds.root.children.forEach(child => childArr.push(child));
-
-        for (const child of childArr) {
-            const childNode = await _this.getRecursiveChildren(child);
-            childNode.order = (order += 10);
-            nodeTree.push(childNode);
-        }
-
-        return nodeTree;
-    },
-
-    getRecursiveChildren: async function(node){
-        // recursively traverses the children of the provided node and returns a full tree of them
-
-        let _this = this;
-        let resultNode = {
-            id: node.persistentID,
-            nodePath: node.nodePath,
-            title: nodeHandlers[node.handlerID].title(node),
-            globalIndex: node.globalIndex,
-            deleted: node.deleted,
-            checked: node.checked,
-            hasChildren: false,
-            children: [],
-            handlerID: node.handlerID,
-            dataSource: node.dataSource
-        };
-
-        await nodeUtils.loadChildren(node);
-        
-        if(node.children.count > 0){
-            let order = 0;
-            resultNode.hasChildren = true;
-
-            // workaround because node.children is not iterable
-            var childArr = [];
-            node.children.forEach(child => childArr.push(child));
-
-            for (const child of childArr) {
-                const childNode = await _this.getRecursiveChildren(child);
-                childNode.order = (order += 10);
-                resultNode.children.push(childNode);
-            }
-        }
-
-        return resultNode;
-    },
-    
     
      newCollection: function() {    
         var newItem = collections.getNewCollection();
