@@ -6,6 +6,13 @@ if (typeof extensions == "undefined")
 	
 extensions.extensionsMenu = {
 	actionTree: [],
+
+	rootNode: {
+		type: "root",
+		id: "root",
+		actions: this.actionTree
+	},
+
 	miscCategoryName: "Misc",
 	addonName: () => "ExtensionsMenu",
 
@@ -171,6 +178,7 @@ extensions.extensionsMenu = {
 			tree.push({
 				order: (extSortOrder += 10),
 				id: `groups.${window.uitools.getPureTitle(ext.extension).replace(" ","_")}`,
+				group: "root",
 				title: ext.extension,
 				type: "group",
 				actions: extActions
@@ -184,6 +192,13 @@ extensions.extensionsMenu = {
 			this.actionTree = this.buildActionTree();
 
 		return this.actionTree;
+	},
+
+	getRootNode: function(){
+		if(!this.rootNode.actions)
+			this.rootNode.actions = this.getActionTree();
+				
+		return this.rootNode;
 	},
 
 	buildMainMenuArray: function(){
@@ -221,48 +236,55 @@ extensions.extensionsMenu = {
 	resetActionTree: function(){
 		// discards all user settings and rebuilds the action tree
 		this.actionTree = this.buildActionTree();
+		this.rootNode.actions = this.actionTree;
 	},
 
-	moveAction: function(item, target){
-		// moves the provided action to a new parent
+	moveGroup: function(group, target){
+		// moves the provided group to a new parent
 
-		if(item.type == "group"){
-			if(target.type == "group"){
-				// group was dropped on different group
-				this.moveToIndex(item, target.order);
-			} 
-			else {
-				if(item.id != target.group){
-					// group was dropped on action in different group, move item
-					// behind the parent of the target
-					let targetIndex = this.getActionParent(target).order + 1;
-					this.moveToIndex(item, targetIndex)
-				} 
-				// else group was dropped on action in same group, nothing to do here
+		this.actionTree.sort(this.sortGroup);
+
+		if(target.type == "action"){
+			if(group.id != target.group){
+				// group was dropped on an action in a different group
+
+				// action is in a group, move the current group behind the parent of the target
+				let targetIndex = this.getActionParent(target).order;
+				this.moveToIndex(group, targetIndex)
 			}
-		} else{
+	
+			// else group was dropped on action in same group, nothing to do here
+		} else {
 			if(target.type == "group"){
-				if(item.group != target.id){
-					// action was dropped on different group, move to last index of the group
-					this.moveActionToGroup(item, target)
-				} 
-					// else action was dropped on same group, nothing to do here
+				this.moveToIndex(group, target.order);
 			} else {
-
-				if(item.group == target.group){
-					// action was dropped on action in same group
-					this.moveToIndex(item, target.order);
-				} else{
-					// action was dropped on action in different group
-					let targetParent = this.getActionParent(target)
-					this.moveActionToGroup(item, targetParent)
-					this.moveToIndex(item, target.order);
-
-				}
+				// group was dropped on root, move the group to the last index
+				this.moveToIndex(group, this.actionTree[this.actionTree.length -1].order);
 			}
 		}
+	},
 
-		this.cleanupGroups();
+	moveAction: function(action, target){
+		// moves the provided action to a new parent
+
+		if(target.type == "action"){
+			if(action.group == target.group){
+				// action was dropped on action in same group, move action behind target
+				this.moveToIndex(action, target.order);
+			} else {
+				// action was dropped on action in different group
+				// move action behind target in the new group
+				let targetParent = this.getActionParent(target)
+				this.moveActionToGroup(action, targetParent)
+				this.moveToIndex(action, target.order);
+			}
+		} else{
+			if(action.group != target.id){
+				// action was dropped on different group, move to last index of the group
+				this.moveActionToGroup(action, target)
+			} 
+			// else action was dropped on same group, nothing to do here
+		}
 	},
 
 	moveActionToGroup: function(item, target){
@@ -279,9 +301,8 @@ extensions.extensionsMenu = {
 		// of the current highest element +10
 
 		newParent.actions.sort(this.sortGroup);
-		let highestIndex = newParent.actions[newParent.actions.length -1].order;
+
 		newParent.actions.push(item);
-		item.order = (highestIndex + 10);
 		item.group = newParent.id;
 
 		// Reorder the old parent by shifting down the order of
@@ -291,10 +312,8 @@ extensions.extensionsMenu = {
 		oldParent.splice(actionIndex,1);
 		if(oldParent.length == 0){
 			// the last node was moved away, remove the parent
-			// this.removeGroup(oldParent);
 			return;
 		}
-
 		
 		oldParent.sort(this.sortGroup);
 		let newItemOrder = (actionIndex == 0 ? 10 : (oldParent[actionIndex-1].order) + 10);
@@ -304,26 +323,20 @@ extensions.extensionsMenu = {
 		}
 	},
 
-	moveToIndex: function(item, index){
+	moveToIndex: function(item, order){
 		// moves the item to the specified index of a group
 		// shifting up the order of all elements after it
 
-		let itemParent;
-		if(item.type == "group"){
-			itemParent = this.actionTree;
-		} else{
-			itemParent = this.getActionParent(item).actions;
+		let itemParent = this.getActionParent(item).actions;
+		itemParent.sort(this.sortGroup);
+		let currentItemIndex = itemParent.findIndex(x =>x.id == item.id);
+		
+		let targetIndex = itemParent.length
+		if(itemParent[targetIndex-1].order > order){
+			targetIndex = itemParent.findIndex(x => x.order >= order);
 		}
 
-		itemParent.sort(this.sortGroup);
-
-		let itemsBeforeIndex = itemParent.filter(x => x.order <= 30);
-		let lastItemBeforeIndex = itemsBeforeIndex[itemsBeforeIndex.length -1];
-
-		let firstItemIndex = itemParent.findIndex(x => x.order >= index);
-		let currentItemIndex = itemParent.findIndex(x =>x.id == item.id);
-
-		itemParent.splice(firstItemIndex, 0, itemParent.splice(currentItemIndex, 1)[0]);
+		itemParent.splice(targetIndex, 0, itemParent.splice(currentItemIndex, 1)[0]);
 
 		// Assign a new order value to each item to 
 		// keep the order in sync with the array position
@@ -335,7 +348,7 @@ extensions.extensionsMenu = {
 	},
 
 	getActionParent: function(action){
-		return this.actionTree.filter(x => x.type == "group" && x.id == action.group)[0];
+		return (action.group == "root" ? this.rootNode : this.actionTree.filter(x => x.type == "group" && x.id == action.group)[0]);
 	},
 
 	sortGroup: function(a,b) {
@@ -343,10 +356,21 @@ extensions.extensionsMenu = {
 	},
 
 	removeGroup: function(group){
-		if(group.actions.length > 0)
+		// removes a group from the action tree
+		// if the group contains actions, they will be moved to the
+		// root node
+
+		if(group.type == "action")
 			return;
 
+		// if(group.actions.length > 0)
+		// 	return;
+
 		let groupIndex = this.actionTree.findIndex(x => x.type == "group" && x.id == group.id);
+		if(group.actions.length > 0){
+			group.actions.forEach(action => this.moveActionToGroup(action, this.rootNode));
+		}
+
 		this.actionTree.splice(groupIndex, 1);
 
 		let newGroupOrder = 0;
@@ -359,7 +383,8 @@ extensions.extensionsMenu = {
 		// removes all groups without action
 
 		for (let index = this.actionTree.length-1; index >= 0 ; index--) {
-			if(this.actionTree[index].actions.length == 0){
+			const treeElement = this.actionTree[index];
+			if(treeElement.type != "action" && treeElement.actions.length == 0){
 				this.removeGroup(this.actionTree[index]);
 			}
 		}

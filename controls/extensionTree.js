@@ -53,30 +53,42 @@ inheritClass('ExtensionTree', CheckboxTree, {
 
 
     drop: function (e) {
+
+        if(e.path[0].classList[0] == "lvViewport"){
+            // object was dropped inside the treeview element but not on a node
+            // move the element to the top level
+            let handler = nodeHandlers[this._dropNode.handlerID];
+            if (handler && handler.drop) {
+                e._dropNode = extensions.extensionsMenu.getRootNode();
+                handler.drop(this.dataSource.root.dataSource, e);
+            }
+        }
+
         if (this._lastDropNodeResult /* this property is from window.dnd.getFocusedItemHandler */ ) {
-            var handler = nodeHandlers[this._dropNode.handlerID];
+            let handler = nodeHandlers[this._dropNode.handlerID];
             if (handler && handler.drop) {
                 e._dropNode = this._dropNode;
                 handler.drop(this._dropNode.dataSource, e);
             }
         }
 
-        let srcObject = dnd.getDragObject(e);
+        let srcObjectNode = dnd.getDragObject(e);
         let datatype = dnd.getDropDataType(e);
 
-        if(srcObject.type == 'action'){
+        if(srcObjectNode.type == 'action'){
             // Nodes tend to forget their checked status when they are moved between
             // parents, set their status again
             let ctrl = e.dataTransfer.getSourceControl();
-            let targetParentNode
-            if(this._dropNode.dataSource.type =='group'){
-                targetParentNode = ctrl.controlClass.dataSource.root.findChild(`${datatype}:${this._dropNode.dataSource.id}`);
+            let targetParent
+
+            if(this._dropNode.dataSource.type == 'action'){
+                targetParent = ctrl.controlClass.dataSource.root.findChild(`extensionsGroupNode:${this._dropNode.dataSource.group}`);
             } else {
-                targetParentNode = ctrl.controlClass.dataSource.root.findChild(`${datatype}:${this._dropNode.dataSource.group}`);
+                targetParent = ctrl.controlClass.dataSource.root.findChild(`extensionsGroupNode:${this._dropNode.dataSource.id}`);
             }
-            let srcObjectNode = targetParentNode.findChild(`${datatype}:${srcObject.id}`);
     
-            srcObjectNode.checked = srcObject.show;
+            let srcObject = targetParent.findChild(`${datatype}:${srcObjectNode.id}`);
+            srcObject.checked = srcObjectNode.show;
         }
 
         this.cancelDrop();

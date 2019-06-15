@@ -25,18 +25,18 @@ window.configInfo = {
         let ds = TV.controlClass.dataSource;
 
         ds.root.handlerID = 'extensionsMenuTreeRoot';
-        ds.root.dataSource = extensions.extensionsMenu.getActionTree();
+        ds.root.dataSource = extensions.extensionsMenu.getRootNode();
 
         TV.controlClass.expandAll()
         
-
         app.listen(UI.btnInputPluginAbout, 'click', async () => await _this.getTreeItems());
         app.listen(UI.btnInputPluginConf, 'click', async () => await _this.saveHandler());
         app.listen(UI.btnReset, 'click', () => {
             extensions.extensionsMenu.resetActionTree();
+
             let tree = app.createTree();
             tree.root.handlerID = 'extensionsMenuTreeRoot';
-            tree.root.dataSource = extensions.extensionsMenu.getActionTree();
+            tree.root.dataSource = extensions.extensionsMenu.getRootNode();
             TV.controlClass.dataSource = tree;
             TV.controlClass.expandAll()
         });
