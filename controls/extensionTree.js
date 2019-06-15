@@ -38,8 +38,20 @@ inheritClass('ExtensionTree', CheckboxTree, {
     },
 
     canDrop: function (e) {
-        TreeView.prototype.runFuncOnHittest.call(this,e);
+        TreeView.prototype.runFuncOnHittest.call(this, e);
         return true;
+    },
+
+    handleNodeCheck: function (node) {
+        node.checked = !node.checked;
+        node.children.setAllChecked(node.checked);
+        node.children.setAllModified(true);
+        node.modified = true;
+        this.raiseEvent('checkchange', {
+            node: node
+        }, true);
+        
+        node.dataSource.show = node.checked;
     },
 
 
