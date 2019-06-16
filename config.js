@@ -21,6 +21,14 @@ window.configInfo = {
         initializeControls(pnl);
 
         UI = getAllUIElements(qid('pnlCollectionsRoot'));
+
+        var editButtons = qid('lvEditButtons').controlClass.buttons;
+        setVisibility(editButtons.up, false);
+        setVisibility(editButtons.down, false);
+        setVisibility(editButtons.new, true);
+        setVisibility(editButtons.edit, true);
+        setVisibility(editButtons.delete, true);
+    
         let TV = UI.lvTreeView;
         let ds = TV.controlClass.dataSource;
 
@@ -40,6 +48,17 @@ window.configInfo = {
             TV.controlClass.dataSource = tree;
             TV.controlClass.expandAll()
         });
+
+        app.listen(editButtons.new, 'click', function () {
+            extensions.extensionsMenu.addGroup();
+            nodeUtils.refreshNodeChildren(TV.controlClass.root);
+        });
+
+        app.listen(editButtons.edit, 'click', function () {
+            extensions.extensionsMenu.setTitle();
+            nodeUtils.refreshNodeChildren(TV.controlClass.root);
+        });
+
     },
 
     save: function(panel, addon){

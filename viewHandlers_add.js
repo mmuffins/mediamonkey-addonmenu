@@ -61,7 +61,7 @@ nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Ba
     },
 
     title: function (node) {
-        return window.uitools.getPureTitle(node.dataSource.title);
+        return node.dataSource.title;
     },
 
     hasChildren: function(node){
@@ -80,6 +80,12 @@ nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Ba
     },
 
     canDrop: node => true,
+    canEdit: node => true,
+
+    setTitle: function (node, newTitle) {
+        node.dataSource.title = newTitle;
+        nodeUtils.refreshNodeChildren(node.parent);
+    },
 
     drop: function (dataSource, e, index) {
         let srcObjectNode = dnd.getDragObject(e);

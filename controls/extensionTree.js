@@ -43,14 +43,7 @@ inheritClass('ExtensionTree', CheckboxTree, {
     },
 
     handleNodeCheck: function (node) {
-        node.checked = !node.checked;
-        node.children.setAllChecked(node.checked);
-        node.children.setAllModified(true);
-        node.modified = true;
-        this.raiseEvent('checkchange', {
-            node: node
-        }, true);
-        
+        TreeView.prototype.handleNodeCheck.call(this, node);
         node.dataSource.show = node.checked;
     },
 

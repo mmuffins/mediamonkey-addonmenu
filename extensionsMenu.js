@@ -468,6 +468,12 @@ extensions.extensionsMenu = {
 		}
 	},
 
+	setTitle: function(){
+		// changes the display title of an element
+		let actionTree = this.getEditRootNode().actions;
+		actionTree[0].title = "eeee";
+	},
+
 	saveSettings: function(){
 		// persists user settings		
 
