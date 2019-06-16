@@ -38,7 +38,6 @@ window.configInfo = {
 
         TV.controlClass.expandAll()
         
-        app.listen(UI.btnInputPluginAbout, 'click', async () => await _this.getTreeItems());
         app.listen(UI.btnReset, 'click', () => {
             extensions.extensionsMenu.resetActionTree();
 
@@ -57,12 +56,16 @@ window.configInfo = {
             // focus node and enter edit node
             TV.controlClass.focusNode(newGroup);
             TV.controlClass.editStart()
-        }.bind(this));
+        });
 
         app.listen(editButtons.edit, 'click', function () {
             TV.controlClass.editStart()
-        }.bind(this));
+        });
 
+        app.listen(UI.btnInputPluginAbout, 'click', function () {
+            TV.controlClass.deleteSelected();
+            // nodeUtils.refreshNodeChildren(TV.controlClass.root);
+        });
     },
 
     save: function(panel, addon){
@@ -71,34 +74,6 @@ window.configInfo = {
         extensions.extensionsMenu.saveSettings();
         extensions.extensionsMenu.refresh();
     },
-    
-     newCollection: function() {    
-        var newItem = collections.getNewCollection();
-        var dlg = uitools.openDialog('dlgCollectionOptions', {
-            item: newItem,
-            isNew: true,
-            modal: true,
-        });
-        dlg.closed = function () {
-            if (dlg.modalResult == 1) {
-                collectionList.add(newItem);
-                var newPos = treeItemsList.count + 1;
-                var newTreeItem = {
-                    new: true,
-                    itemType: 'collection',
-                    id: newItem.id,
-                    name: newItem.name,
-                    visible: 1,
-                    pos: newPos,
-                    newItem: newItem
-                };
-                newTreeItem.collection = newItem;
-                treeItemsList.insert(treeItemsList.count - 1, newTreeItem);
-                newItem.pos = newPos;
-            }
-        };
-        app.listen(dlg, 'closed', dlg.closed);
-    }
 }
 
 

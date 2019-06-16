@@ -46,7 +46,7 @@ inheritClass('ExtensionTree', CheckboxTree, {
         TreeView.prototype.handleNodeCheck.call(this, node);
         node.dataSource.show = node.checked;
     },
-    
+
     drop: function (e) {
 
         if (this._lastDropNodeResult /* this property is from window.dnd.getFocusedItemHandler */ ) {
@@ -87,6 +87,21 @@ inheritClass('ExtensionTree', CheckboxTree, {
         }
 
         this.cancelDrop();
+    },
+
+    deleteSelected: function (permanent) {
+        var node = this.focusedNode;
+
+        if(!node)
+            return;
+
+        let handler = nodeHandlers[node.handlerID];
+
+        if (handler && handler.deleteItems) {
+            if (!nodeUtils.isDeleteDisabled(node)) {
+                handler.deleteItems(node);
+            }
+        }
     },
 }, {
 });

@@ -81,6 +81,7 @@ nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Ba
 
     canDrop: node => true,
     canEdit: node => true,
+    canDelete: node => true,
 
     setTitle: function (node, newTitle) {
         node.dataSource.title = newTitle;
@@ -135,6 +136,12 @@ nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Ba
             }
         }
     },
+
+    deleteItems: function (node) {
+        extensions.extensionsMenu.removeGroup(node.dataSource);
+        nodeUtils.refreshNodeChildren(node.parent);
+    },
+    
 });
 
 nodeHandlers.extensionsMenuNode = inheritNodeHandler('extensionsMenuNode', 'Base', {
@@ -163,6 +170,7 @@ nodeHandlers.extensionsMenuNode = inheritNodeHandler('extensionsMenuNode', 'Base
     },
 
     canDrop: node => true,
+    canDelete: node => false,
 
     drop: function (dataSource, e, index) {
         let srcObjectNode = dnd.getDragObject(e);
