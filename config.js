@@ -1,17 +1,8 @@
 "use strict";
 
 requirejs('viewHandlers.js');
-requirejs("controls/listview");
-requirejs("controls/gridview");
 requirejs("Scripts/ExtensionsMenu/extensionsMenu")
 requirejs("controls/extensionTree")
-
-
-
-let UI = null;
-let collectionList = null;
-let treeItemsList = null;
-let collections = null;
 
 window.configInfo = {
     load: function(panel, addon){
@@ -20,7 +11,7 @@ window.configInfo = {
         let pnl = panel.firstElementChild;
         initializeControls(pnl);
 
-        UI = getAllUIElements(qid('pnlCollectionsRoot'));
+        let UI = getAllUIElements(qid('pnlCollectionsRoot'));
 
         var editButtons = qid('lvEditButtons').controlClass.buttons;
         setVisibility(editButtons.up, false);
