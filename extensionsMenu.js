@@ -142,7 +142,7 @@ extensions.extensionsMenu = {
 
 			// map each action with its order within the extension and an unique ID
 			let actionSortOrder = 0;
-			let newGroup = this.newGroup(ext.extensions, [], (extSortOrder += 10))
+			let newGroup = this.newGroup(ext.extension, [], (extSortOrder += 10))
 
 			let extActions = ext.actions.map(act => {
 				return {
@@ -156,6 +156,7 @@ extensions.extensionsMenu = {
 			});
 
 			newGroup.actions = extActions;
+			nodeTree.push(newGroup);
 		})
 		return nodeTree;
 	},
