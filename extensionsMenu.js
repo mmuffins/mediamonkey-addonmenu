@@ -429,19 +429,22 @@ extensions.extensionsMenu = {
 	},
 
 	removeGroup: function(group){
-		// removes a group from the action tree
-		// if the group contains actions, they will be moved to the
-		// root node
+		// removes a group from the action tree if the group
+		// contains actions, they will be moved to the root node
 
 		if(group.type == "action")
 			return;
 
-		// if(group.actions.length > 0)
-		// 	return;
-
 		let groupIndex = this.editNode.actions.findIndex(x => x.type == "group" && x.id == group.id);
+
+		if(groupIndex < 0)
+			return;
+
 		if(group.actions.length > 0){
-			group.actions.forEach(action => this.moveActionToGroup(action, this.editNode.actions));
+			for (let index = (group.actions.length - 1); index >= 0; index--) {
+				const action = group.actions[index];
+				this.moveActionToGroup(action, this.editNode);
+			}
 		}
 
 		this.editNode.actions.splice(groupIndex, 1);
