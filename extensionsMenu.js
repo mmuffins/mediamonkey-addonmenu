@@ -142,26 +142,20 @@ extensions.extensionsMenu = {
 
 			// map each action with its order within the extension and an unique ID
 			let actionSortOrder = 0;
+			let newGroup = this.newGroup(ext.extensions, [], (extSortOrder += 10))
+
 			let extActions = ext.actions.map(act => {
 				return {
 					action: act,
 					id: `actions.${act}`,
 					type: "action",
-					group: `groups.${window.uitools.getPureTitle(ext.extension).replace(" ","_")}`,
+					group: newGroup.id,
 					order: (actionSortOrder += 10),
 					show: true
 				}
 			});
 
-			// wrap the submenu node into a extension node
-			nodeTree.push({
-				order: (extSortOrder += 10),
-				id: `groups.${window.uitools.getPureTitle(ext.extension).replace(" ","_")}`,
-				group: "root",
-				title: ext.extension,
-				type: "group",
-				actions: extActions
-			});
+			newGroup.actions = extActions;
 		})
 		return nodeTree;
 	},
@@ -241,7 +235,7 @@ extensions.extensionsMenu = {
 	},
 
 	applyChanges: function(){
-		// applies all changes from the edit root nod
+		// applies all changes from the edit root node
 		// to the main root node
 
 		this.rootNode.actions = this.editNode.actions;
@@ -468,7 +462,38 @@ extensions.extensionsMenu = {
 		}
 	},
 
-	setTitle: function(){
+	newGroup: function(title, actionList, sortOrder){
+		// adds a new group edit root node and returns a reference to the group
+
+		if(!sortOrder){
+			sortOrder = 10;
+
+			if(this.editNode.actions.length > 0)
+				sortOrder = this.editNode.actions[this.editNode.actions.length -1].order;
+		}
+
+		if(!title)
+			title = "";
+
+		if(!actionList)
+			actionList = [];
+
+		let randomString = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+		let newGroup = {
+			id: `groups.${randomString}`,
+			order: sortOrder,
+			title: title,
+			group: "root",
+			type: "group",
+			actions: actionList
+		}
+
+		this.editNode.actions.push(newGroup)
+		return newGroup;
+	},
+
+	setTitle: function(item, newTitle){
 		// changes the display title of an element
 		let actionTree = this.getEditRootNode().actions;
 		actionTree[0].title = "eeee";

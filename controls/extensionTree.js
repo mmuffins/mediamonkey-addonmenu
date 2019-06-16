@@ -46,8 +46,7 @@ inheritClass('ExtensionTree', CheckboxTree, {
         TreeView.prototype.handleNodeCheck.call(this, node);
         node.dataSource.show = node.checked;
     },
-
-
+    
     drop: function (e) {
 
         if (this._lastDropNodeResult /* this property is from window.dnd.getFocusedItemHandler */ ) {

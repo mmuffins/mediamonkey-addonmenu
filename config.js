@@ -50,14 +50,18 @@ window.configInfo = {
         });
 
         app.listen(editButtons.new, 'click', function () {
-            extensions.extensionsMenu.addGroup();
+            let newGroupNode = extensions.extensionsMenu.newGroup("New Group");
             nodeUtils.refreshNodeChildren(TV.controlClass.root);
-        });
+            let newGroup = TV.controlClass.root.findChild(`extensionsGroupNode:${newGroupNode.id}`);
+
+            // focus node and enter edit node
+            TV.controlClass.focusNode(newGroup);
+            TV.controlClass.editStart()
+        }.bind(this));
 
         app.listen(editButtons.edit, 'click', function () {
-            extensions.extensionsMenu.setTitle();
-            nodeUtils.refreshNodeChildren(TV.controlClass.root);
-        });
+            TV.controlClass.editStart()
+        }.bind(this));
 
     },
 
