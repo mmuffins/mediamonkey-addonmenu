@@ -1,11 +1,9 @@
-<div>
-    <div data-id="pnlCollectionsRoot" class="flex column fill" data-tip="Choose which nodes to enable in the Media Tree, and edit the properties of Collections.">
-        <div data-id="lvTreeView" class="fill flex column hSeparatorTiny" data-control-class="ExtensionTree" data-init-params="{enableDragDrop: true}"></div>
-        <div data-id="lvEditButtons" class="hSeparator" data-control-class="ListEditButtons"></div>
-        <div data-control-class="Buttons">
-            <div data-id='btnInputPluginAbout' data-control-class="Button" data-position='opposite'>About...</div>
-            <div data-id='btnInputPluginConf' data-control-class="Button" data-position='opposite'>Configure...</div>
-            <div data-id='btnReset' data-control-class="Button" data-position='opposite'>Reset</div>
-        </div>
+<div data-id="pnlCollectionsRoot" class="padding fill flex column" data-tip="Organize the displayed extension actions into groups.">
+    <div data-id="lvTreeView" class="fill flex column hSeparatorTiny" data-control-class="ExtensionTree" data-init-params="{enableDragDrop: true}"></div>
+    <div data-control-class="Buttons">
+        <div data-id='btnNewGroup' data-control-class="Button" data-position='opposite' data-tip="Add a new group.">New</div>
+        <div data-id='btnDeleteGroup' data-control-class="Button" data-position='opposite' data-tip="Delete the selected group.">Delete</div>
+        <div data-id='btnRenameGroup' data-control-class="Button" data-position='opposite' data-tip="Rename the selected group.">Rename</div>
+        <div data-id='btnResetTree' data-control-class="Button" data-position='opposite' data-tip="Reset the tree to its initial state.">Reset</div>
     </div>
 </div>

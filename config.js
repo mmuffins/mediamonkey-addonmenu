@@ -12,14 +12,6 @@ window.configInfo = {
         initializeControls(pnl);
 
         let UI = getAllUIElements(qid('pnlCollectionsRoot'));
-
-        var editButtons = qid('lvEditButtons').controlClass.buttons;
-        setVisibility(editButtons.up, false);
-        setVisibility(editButtons.down, false);
-        setVisibility(editButtons.new, true);
-        setVisibility(editButtons.edit, true);
-        setVisibility(editButtons.delete, true);
-    
         let TV = UI.lvTreeView;
         let ds = TV.controlClass.dataSource;
 
@@ -29,17 +21,7 @@ window.configInfo = {
 
         TV.controlClass.expandAll()
         
-        app.listen(UI.btnReset, 'click', () => {
-            extensions.extensionsMenu.resetActionTree();
-
-            let tree = app.createTree();
-            tree.root.handlerID = 'extensionsMenuTreeRoot';
-            tree.root.dataSource = extensions.extensionsMenu.getEditRootNode();
-            TV.controlClass.dataSource = tree;
-            TV.controlClass.expandAll()
-        });
-
-        app.listen(editButtons.new, 'click', function () {
+        app.listen(UI.btnNewGroup, 'click', function () {
             let newGroupNode = extensions.extensionsMenu.newGroup("New Group");
             nodeUtils.refreshNodeChildren(TV.controlClass.root);
             let newGroup = TV.controlClass.root.findChild(`extensionsGroupNode:${newGroupNode.id}`);
@@ -49,12 +31,21 @@ window.configInfo = {
             TV.controlClass.editStart()
         });
 
-        app.listen(editButtons.edit, 'click', function () {
+        app.listen(UI.btnDeleteGroup, 'click', function () {
+            TV.controlClass.deleteSelected();
+        });
+
+        app.listen(UI.btnRenameGroup, 'click', function () {
             TV.controlClass.editStart()
         });
 
-        app.listen(UI.btnInputPluginAbout, 'click', function () {
-            TV.controlClass.deleteSelected();
+        app.listen(UI.btnResetTree, 'click', () => {
+            extensions.extensionsMenu.resetActionTree();
+            let tree = app.createTree();
+            tree.root.handlerID = 'extensionsMenuTreeRoot';
+            tree.root.dataSource = extensions.extensionsMenu.getEditRootNode();
+            TV.controlClass.dataSource = tree;
+            TV.controlClass.expandAll()
         });
     },
 
