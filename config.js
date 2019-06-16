@@ -55,7 +55,6 @@ window.configInfo = {
 
         app.listen(UI.btnInputPluginAbout, 'click', function () {
             TV.controlClass.deleteSelected();
-            // nodeUtils.refreshNodeChildren(TV.controlClass.root);
         });
     },
 

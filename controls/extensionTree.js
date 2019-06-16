@@ -99,7 +99,18 @@ inheritClass('ExtensionTree', CheckboxTree, {
 
         if (handler && handler.deleteItems) {
             if (!nodeUtils.isDeleteDisabled(node)) {
+                // get the IDs of all children of the deleted node
+                // to restore their checked state later
+                let childNodeIDs = [];
+                node.children.forEach(node => childNodeIDs.push(node.persistentID))
                 handler.deleteItems(node);
+
+                childNodeIDs.forEach(nodeId => {
+                    let movedNode = this.dataSource.root.findChild(nodeId);
+                    movedNode.checked = movedNode.dataSource.show;
+                });
+
+                nodeUtils.refreshNodeChildren(this.dataSource.root);
             }
         }
     },
