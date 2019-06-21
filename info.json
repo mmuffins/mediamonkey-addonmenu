@@ -4,5 +4,6 @@
     "description": "Adds an Extensions Section to the Main Menu",
     "version": "1.0.0",
     "type": "general",
-    "author": "Michael Kellner"
+    "author": "Michael Kellner",
+    "config": "config.js"
 }
