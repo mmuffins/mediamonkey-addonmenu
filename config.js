@@ -50,10 +50,14 @@ window.configInfo = {
     },
 
     save: function(panel, addon){
+
         extensions.extensionsMenu.applyChanges()
-        extensions.extensionsMenu.discardChanges();
         extensions.extensionsMenu.saveSettings();
-        extensions.extensionsMenu.refresh();
+        extensions.extensionsMenu.reloadActionTree();
+
+        // the config menu runs in a separate context from the main window
+        let mainAppWindow = app.dialogs.getMainWindow()._window;
+        mainAppWindow.extensions.extensionsMenu.refresh();
     },
 }
 

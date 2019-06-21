@@ -22,6 +22,7 @@ extensions.extensionsMenu = {
 
 	refresh: async function(){
 		let _this = this;
+		_this.reloadActionTree();
 		let menu = _this.buildMainMenuArray()
 		await _this.pushToUi(menu);
 	},
@@ -294,6 +295,12 @@ extensions.extensionsMenu = {
 		// discards all user settings and rebuilds the action tree
 		this.rootNode.actions = this.buildActionTree();
 		this.editNode.actions = this.buildActionTree();
+	},
+
+	reloadActionTree: function(){
+		// discards the current action tree and rebuilds it
+		this.discardChanges();
+		this.rootNode.actions = this.buildUserActionTree();
 	},	
 	
 	discardChanges: function(){
