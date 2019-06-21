@@ -16,13 +16,16 @@ The extension menu automatically imports all valid actions from the global actio
 | execute       | function   | Function to execute when calling the action |
 
 ## Example
-To create new actions, simply add a new property to the global actions object.
+To create new actions, simply add new actions to the global actions object.
 
 ```javascript
+// Make sure to keep this header as it's needed to properly discover and
+// import extension actions
 if(!actionCategories.hasOwnProperty('extensions')){
   actionCategories.extensions = () => _('Extensions');
 }
 
+// Create the needed actions
 actions.MyAddonAction = {
   title: () => _('&My Addon Action'),
   hotkeyAble: true,
