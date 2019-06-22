@@ -179,28 +179,32 @@ extensions.extensionsMenu = {
 		let userSettings = this.loadSettings();
 		userSettings.sort(this.sortGroup);
 
-		// only include extension actions if they have not been saved before
 		let validActionsKeys = validActions.map(itm => itm.key);
 		let userSettingsKeys = userSettings
 			.filter(itm => itm.type == 'action')
 			.map(itm => itm.action);
-
+		
+		// remove user preferences if their related action is not available anymore in case the addon was removed
+		userSettingsKeys = userSettingsKeys.filter(itm => validActionsKeys.includes(itm))
+		let userActions = userSettings.filter(itm => userSettingsKeys.includes(itm.action));
+		
+		// only include extension actions if they don't have a user preference yet
 		validActionsKeys = validActionsKeys.filter(itm => !userSettingsKeys.includes(itm))
-		let extActions = validActions.filter(itm => validActionsKeys.includes(itm.key))
+		let extActions = validActions.filter(itm => itm.type == 'action' && validActionsKeys.includes(itm.key))
 
 		// create node tree from the filtered actions
 		let actionNodes = this.buildNodeTree(extActions);
 
 		// build node tree from loaded user settings
-		let userActions = userSettings.filter(itm => itm.type == 'action');
 		let userGroups = userSettings.filter(itm => itm.type == 'group');
 
 		let actionTree = []
 		userGroups.forEach(grp => {
 			let grpActions = userActions.filter(act => act.group == grp.id);
-			// grp.order = (groupOrder += 10);
-			grp.actions = grpActions;
-			actionTree.push(grp);
+			if(grpActions.length > 0){
+				grp.actions = grpActions;
+				actionTree.push(grp);
+			}
 		});
 
 		let rootActions = userActions.filter(act => act.group == 'root');
