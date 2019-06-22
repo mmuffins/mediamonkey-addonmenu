@@ -1,7 +1,8 @@
 "use strict";
 
 // Add global section to register extension actions if it doesn't exist yet
-extensions = extensions || {};
+if(typeof extensions == "undefined" )
+	extensions = {};
 	
 extensions.extensionsMenu = {
 
