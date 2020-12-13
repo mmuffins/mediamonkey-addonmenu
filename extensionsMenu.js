@@ -215,7 +215,10 @@ extensions.extensionsMenu = {
 		actionTree.sort(this.sortGroup);
 
 		// add all new actions to the bottom of the list
-		let groupOrder = actionTree[actionTree.length -1].order;
+		let groupOrder = 0;
+		if(actionTree[actionTree.length -1]){
+			groupOrder = actionTree[actionTree.length -1].order;
+		}
 
 		actionNodes.forEach(node => {
 			node.order = (groupOrder += 10);
