@@ -190,7 +190,7 @@ extensions.extensionsMenu = {
 		
 		// only include extension actions if they don't have a user preference yet
 		validActionsKeys = validActionsKeys.filter(itm => !userSettingsKeys.includes(itm))
-		let extActions = validActions.filter(itm => itm.type == 'action' && validActionsKeys.includes(itm.key))
+		let extActions = validActions.filter(itm => validActionsKeys.includes(itm.key))
 
 		// create node tree from the filtered actions
 		let actionNodes = this.buildNodeTree(extActions);
