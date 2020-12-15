@@ -29,9 +29,9 @@ if(!actionCategories.hasOwnProperty('addons')){
 actions.MyAddonAction = {
   title: () => _('&My Addon Action'),
   hotkeyAble: true,
-  category: actionCategories.addons,
+  category: actionCategories.addons, // Should always be actionCategories.addons, otherwise the action won't be discovered by the addon menu
   icon: 'myAddonIcon',
-  addon: () => _("My &Addon"),
+  addon: () => _("My &Addon"), // The addon property is used to group individual actions in folders
   execute: () => alert('My Addon Action')
 }
 
@@ -50,3 +50,5 @@ actions.MyOtherAddonAction = {
 if(typeof addons != "undefined" && addons.addonMenu != null)
   addons.addonMenu.refresh();
 ```
+
+Also see the SampleAddon folder for a full usage example.
