@@ -1,5 +1,5 @@
-// Add global section to register extension actions if it doesn't exist yet
-if(typeof extensions == "undefined" )
-	extensions = {};
+// Add global section to register addon actions if it doesn't exist yet
+if(typeof addons == "undefined" )
+	addons = {};
 
-actionCategories.extensions = () => _('Extensions');
+actionCategories.addons = () => _('Addons');

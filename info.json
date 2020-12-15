@@ -1,9 +1,9 @@
 {
-    "title": "Extensions Menu",
-    "id": "extensionsMenu",
-    "description": "Adds an Extensions Section to the Main Menu",
+    "title": "Addons Menu",
+    "id": "addonsMenu",
+    "description": "Adds an Addons Section to the Main Menu",
     "version": "1.0.0",
     "type": "general",
-    "author": "Michael Kellner",
+    "author": "mmuffins",
     "config": "config.js"
 }

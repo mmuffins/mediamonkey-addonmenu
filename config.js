@@ -1,30 +1,31 @@
 "use strict";
 
 requirejs('viewHandlers.js');
-requirejs("Scripts/ExtensionsMenu/extensionsMenu")
-requirejs("controls/extensionTree")
+requirejs("Scripts/AddonsMenu/addonsMenu")
+requirejs("controls/addonTree")
 
 window.configInfo = {
     load: function(panel, addon){
         let _this = this;
         panel.innerHTML = window.loadFile(addon.configFile.replace('config.js','config.html'));
-        let pnl = panel.firstElementChild;
+        // let pnl = panel.firstElementChild;
+        let pnl = panel.children[1];
         initializeControls(pnl);
 
         let UI = getAllUIElements(qid('pnlCollectionsRoot'));
         let TV = UI.lvTreeView;
         let ds = TV.controlClass.dataSource;
 
-        extensions.extensionsMenu.discardChanges();
-        ds.root.handlerID = 'extensionsMenuTreeRoot';
-        ds.root.dataSource = extensions.extensionsMenu.getEditRootNode();
-
+        addons.addonsMenu.discardChanges();
+        ds.root.handlerID = 'addonsMenuTreeRoot';
+        ds.root.dataSource = addons.addonsMenu.getEditRootNode();
+        
         TV.controlClass.expandAll()
         
         app.listen(UI.btnNewGroup, 'click', function () {
-            let newGroupNode = extensions.extensionsMenu.newGroup("New Group");
+            let newGroupNode = addons.addonsMenu.newGroup("New Group");
             nodeUtils.refreshNodeChildren(TV.controlClass.root);
-            let newGroup = TV.controlClass.root.findChild(`extensionsGroupNode:${newGroupNode.id}`);
+            let newGroup = TV.controlClass.root.findChild(`addonsGroupNode:${newGroupNode.id}`);
 
             // focus node and enter edit node
             TV.controlClass.focusNode(newGroup);
@@ -40,23 +41,23 @@ window.configInfo = {
         });
 
         app.listen(UI.btnResetTree, 'click', () => {
-            extensions.extensionsMenu.resetActionTree();
+            addons.addonsMenu.resetActionTree();
             let tree = app.createTree();
-            tree.root.handlerID = 'extensionsMenuTreeRoot';
-            tree.root.dataSource = extensions.extensionsMenu.getEditRootNode();
+            tree.root.handlerID = 'addonsMenuTreeRoot';
+            tree.root.dataSource = addons.addonsMenu.getEditRootNode();
             TV.controlClass.dataSource = tree;
             TV.controlClass.expandAll()
         });
     },
 
     save: function(panel, addon){
-        extensions.extensionsMenu.applyChanges()
-        extensions.extensionsMenu.saveSettings();
-        extensions.extensionsMenu.refresh();
+        addons.addonsMenu.applyChanges()
+        addons.addonsMenu.saveSettings();
+        addons.addonsMenu.refresh();
 
         // the config menu runs in a separate context from the main window
         let mainAppWindow = app.dialogs.getMainWindow()._window;
-        mainAppWindow.extensions.extensionsMenu.refresh();
+        mainAppWindow.addons.addonsMenu.refresh();
     },
 }
 
