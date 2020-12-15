@@ -1,6 +1,6 @@
 {
-    "title": "Addons Menu",
-    "id": "addonsMenu",
+    "title": "Addon Menu",
+    "id": "addonMenu",
     "description": "Adds an Addons Section to the Main Menu",
     "version": "1.0.0",
     "type": "general",

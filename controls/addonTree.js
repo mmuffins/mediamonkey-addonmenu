@@ -60,7 +60,7 @@ inheritClass('AddonTree', CheckboxTree, {
         if(e.path[0].classList[0] == "lvViewport"){
             // object was dropped inside the treeview element but not on a node
             // move the element to the top level
-            let handler = nodeHandlers['addonsMenuTreeRoot'];
+            let handler = nodeHandlers['addonMenuTreeRoot'];
             if (handler && handler.drop) {
                 e._dropNode = this.dataSource.root;
                 handler.drop(this.dataSource.root.dataSource, e);
@@ -79,7 +79,7 @@ inheritClass('AddonTree', CheckboxTree, {
             let targetParent = this.dataSource.root;
 
             if(parentType == "groups"){
-                targetParent = ctrl.controlClass.dataSource.root.findChild(`addonsGroupNode:${srcObjectNode.group}`);
+                targetParent = ctrl.controlClass.dataSource.root.findChild(`addonGroupNode:${srcObjectNode.group}`);
             }
 
             let srcObject = targetParent.findChild(`${datatype}:${srcObjectNode.id}`);

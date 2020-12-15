@@ -4,7 +4,7 @@
 if(typeof addons == "undefined" )
 	addons = {};
 	
-addons.addonsMenu = {
+addons.addonMenu = {
 
 	rootNode: {
 		type: "root",
@@ -19,7 +19,7 @@ addons.addonsMenu = {
 	},
 
 	miscCategoryName: "Misc",
-	addonName: () => "AddonsMenu",
+	addonName: () => "AddonMenu",
 
 	refresh: async function(){
 		let _this = this;

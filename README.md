@@ -1,10 +1,10 @@
 # Addons Menu for MediaMonkey
-[![Build status](https://dev.azure.com/mmuffins/github/_apis/build/status/MediaMonkey.AddonsMenu)](https://dev.azure.com/mmuffins/github/_build/latest?definitionId=79)
+[![Build status](https://dev.azure.com/mmuffins/github/_apis/build/status/MediaMonkey.AddonMenu)](https://dev.azure.com/mmuffins/github/_build/latest?definitionId=79)
 
 This addon adds an additional item to the MediaMonkey 5 main menu bar that allows addon developers to present an entry point or functionality of their addon in a central and consistent way to the user.
 
 ## Installation
-Download the latest release from the releases section and double click addonsMenu.mmip. An MediaMonkey dialog will automatically pop up, prompting you to confirm the installation.
+Download the latest release from the releases section and double click addonMenu.mmip. An MediaMonkey dialog will automatically pop up, prompting you to confirm the installation.
 
 ## Registering actions
 The addon menu automatically imports all valid actions from the global actions object if they are in the Extenions category. The following properties are required for an action to be considered valid:
@@ -47,6 +47,6 @@ actions.MyOtherAddonAction = {
 // Refresh the addon menu to import new actions.
 // No need to worry if the menu can't be refreshed at this point because it's not loaded yet.
 // It will automatically import all actions as soon it gets loaded by MediaMonkey.
-if(typeof addons != "undefined" && addons.addonsMenu != null)
-  addons.addonsMenu.refresh();
+if(typeof addons != "undefined" && addons.addonMenu != null)
+  addons.addonMenu.refresh();
 ```

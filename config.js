@@ -1,7 +1,7 @@
 "use strict";
 
 requirejs('viewHandlers.js');
-requirejs("Scripts/AddonsMenu/addonsMenu")
+requirejs("Scripts/AddonMenu/addonMenu")
 requirejs("controls/addonTree")
 
 window.configInfo = {
@@ -16,16 +16,16 @@ window.configInfo = {
         let TV = UI.lvTreeView;
         let ds = TV.controlClass.dataSource;
 
-        addons.addonsMenu.discardChanges();
-        ds.root.handlerID = 'addonsMenuTreeRoot';
-        ds.root.dataSource = addons.addonsMenu.getEditRootNode();
+        addons.addonMenu.discardChanges();
+        ds.root.handlerID = 'addonMenuTreeRoot';
+        ds.root.dataSource = addons.addonMenu.getEditRootNode();
         
         TV.controlClass.expandAll()
         
         app.listen(UI.btnNewGroup, 'click', function () {
-            let newGroupNode = addons.addonsMenu.newGroup("New Group");
+            let newGroupNode = addons.addonMenu.newGroup("New Group");
             nodeUtils.refreshNodeChildren(TV.controlClass.root);
-            let newGroup = TV.controlClass.root.findChild(`addonsGroupNode:${newGroupNode.id}`);
+            let newGroup = TV.controlClass.root.findChild(`addonGroupNode:${newGroupNode.id}`);
 
             // focus node and enter edit node
             TV.controlClass.focusNode(newGroup);
@@ -41,23 +41,23 @@ window.configInfo = {
         });
 
         app.listen(UI.btnResetTree, 'click', () => {
-            addons.addonsMenu.resetActionTree();
+            addons.addonMenu.resetActionTree();
             let tree = app.createTree();
-            tree.root.handlerID = 'addonsMenuTreeRoot';
-            tree.root.dataSource = addons.addonsMenu.getEditRootNode();
+            tree.root.handlerID = 'addonMenuTreeRoot';
+            tree.root.dataSource = addons.addonMenu.getEditRootNode();
             TV.controlClass.dataSource = tree;
             TV.controlClass.expandAll()
         });
     },
 
     save: function(panel, addon){
-        addons.addonsMenu.applyChanges()
-        addons.addonsMenu.saveSettings();
-        addons.addonsMenu.refresh();
+        addons.addonMenu.applyChanges()
+        addons.addonMenu.saveSettings();
+        addons.addonMenu.refresh();
 
         // the config menu runs in a separate context from the main window
         let mainAppWindow = app.dialogs.getMainWindow()._window;
-        mainAppWindow.addons.addonsMenu.refresh();
+        mainAppWindow.addons.addonMenu.refresh();
     },
 }
 
