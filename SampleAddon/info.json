@@ -1,0 +1,8 @@
+{
+    "title": "Addon Menu Sample Addon 1",
+    "description": "Sample Addon to demonstrate how to integrate custom addon actions into the addon menu.",
+    "id":"addonMenuSampleAddon1",
+    "type": "general",
+    "author": "mmuffins",
+    "version": "1.0.0"
+}
