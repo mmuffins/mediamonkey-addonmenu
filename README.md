@@ -12,7 +12,7 @@ The addon menu automatically imports all valid actions from the global actions o
 | Name          | Type       | Description  |
 | :------------ |:---------- | :----------  |
 | title         | function   | Display name of the action |
-| addon     | function   | Display name of the addon |
+| addon     | function   | Folder name to group actions |
 | execute       | function   | Function to execute when calling the action |
 
 ## Example
@@ -31,7 +31,7 @@ actions.MyAddonAction = {
   hotkeyAble: true,
   category: actionCategories.addons, // Should always be actionCategories.addons, otherwise the action won't be discovered by the addon menu
   icon: 'myAddonIcon',
-  addon: () => _("My &Addon"), // The addon property is used to group individual actions in folders
+  addon: () => _("My &Addon"),
   execute: () => alert('My Addon Action')
 }
 
