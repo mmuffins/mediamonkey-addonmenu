@@ -51,7 +51,7 @@ window.addons.addonMenu = {
 
 		let helpMenu = window.mainMenuItems.filter(itm => itm.action.title instanceof Function && itm.action.title() == "&Help")[0]
 		// While just taking the first index before the helpmenu could cause a collision with other items,
-		// it doesn't matter beacause what ultimately decides the used order is the position within the mainMenuItems array,
+		// it doesn't matter because what ultimately decides the used order is the position within the mainMenuItems array,
 		// not the order property
 		let extMenuIndex = helpMenu.order -1;
 
@@ -68,7 +68,7 @@ window.addons.addonMenu = {
 		}
 
 		window.mainMenuItems.push(newMenu);
-		window.mainMenuItems.sort((a,b) =>  !a.hasOwnProperty('order') || a.order > b.order);
+		window.mainMenuItems.sort((a,b) => !a.hasOwnProperty('order') || a.order - b.order);
 		uitools.switchMainMenu(false);
 		uitools.switchMainMenu(true);
 	},
