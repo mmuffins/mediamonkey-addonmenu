@@ -18,14 +18,12 @@ window.configInfo = {
         addons.addonMenu.discardChanges();
         ds.root.handlerID = 'addonMenuTreeRoot';
         ds.root.dataSource = addons.addonMenu.getEditRootNode();
-        
         TV.controlClass.expandAll()
 
         app.listen(TV, 'focuschange', function(e){
             _this.handleButtonsDisableState(e);
         });
         
-
         app.listen(UI.btnNewGroup, 'click', function () {
             let newGroupNode = addons.addonMenu.newGroup("New Group");
             nodeUtils.refreshNodeChildren(TV.controlClass.root);
@@ -52,6 +50,16 @@ window.configInfo = {
             TV.controlClass.dataSource = tree;
             TV.controlClass.expandAll()
         });
+
+        if(ds.root.dataSource.actions.length == 0){
+            // No addons were found, disable actions
+            UI.btnNewGroup.controlClass.disabled = true;
+            UI.btnResetTree.controlClass.disabled = true;
+            UI.btnDeleteGroup.controlClass.disabled = true;
+            UI.btnRenameGroup.controlClass.disabled = true;
+            UI.lblNoAddonsFound.style.display = "block";
+            TV.hidden = true;
+        }
     },
 
     save: function(panel, addon){
