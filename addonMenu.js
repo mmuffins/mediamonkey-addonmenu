@@ -285,6 +285,9 @@ window.addons.addonMenu = {
 			});
 		});
 
+		// remove groups without visible actions
+		menu = menu.filter(x => x.action.submenu.length > 0)
+
 		let rootActions = extTree
 			.filter(itm => itm.type == "action" && itm.group == "root");
 
