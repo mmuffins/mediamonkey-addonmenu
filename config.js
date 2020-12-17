@@ -7,7 +7,7 @@ requirejs("controls/addonTree")
 window.configInfo = {
     load: function(panel, addon){
         let _this = this;
-        panel.innerHTML = window.loadFile(addon.configFile.replace('config.js','config.html'));
+        // panel.innerHTML = window.loadFile(addon.configFile.replace('config.js','config.html'));
         let pnl = panel.firstElementChild;
         initializeControls(pnl);
 
