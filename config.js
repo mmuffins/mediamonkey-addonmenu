@@ -20,7 +20,12 @@ window.configInfo = {
         ds.root.dataSource = addons.addonMenu.getEditRootNode();
         
         TV.controlClass.expandAll()
+
+        app.listen(TV, 'focuschange', function(e){
+            _this.handleButtonsDisableState(e);
+        });
         
+
         app.listen(UI.btnNewGroup, 'click', function () {
             let newGroupNode = addons.addonMenu.newGroup("New Group");
             nodeUtils.refreshNodeChildren(TV.controlClass.root);
@@ -58,6 +63,11 @@ window.configInfo = {
         let mainAppWindow = app.dialogs.getMainWindow()._window;
         mainAppWindow.addons.addonMenu.refresh();
     },
+
+    handleButtonsDisableState: function(e){
+        qid('btnDeleteGroup').controlClass.disabled = 'group' != e.target.controlClass.focusedNode.dataSource.type;
+        qid('btnRenameGroup').controlClass.disabled = 'group' != e.target.controlClass.focusedNode.dataSource.type;
+    }
 }
 
 
