@@ -21,12 +21,12 @@ To create new actions, simply add new actions to the global actions object.
 ```javascript
 // Make sure to keep this header as it's needed to properly discover and
 // import addon actions
-if(!actionCategories.hasOwnProperty('addons')){
-  actionCategories.addons = () => _('Addons');
+if(!window.actionCategories.hasOwnProperty('addons')){
+  window.actionCategories.addons = () => _('Addons');
 }
 
 // Create the needed actions
-actions.MyAddonAction = {
+window.actions.MyAddonAction = {
   title: () => _('&My Addon Action'),
   hotkeyAble: true,
   category: actionCategories.addons, // Should always be actionCategories.addons, otherwise the action won't be discovered by the addon menu
@@ -35,7 +35,7 @@ actions.MyAddonAction = {
   execute: () => alert('My Addon Action')
 }
 
-actions.MyOtherAddonAction = {
+window.actions.MyOtherAddonAction = {
   title: () => _('My &Other Addon Action'),
   hotkeyAble: true,
   category: actionCategories.addons,
@@ -47,8 +47,8 @@ actions.MyOtherAddonAction = {
 // Refresh the addon menu to import new actions.
 // No need to worry if the menu can't be refreshed at this point because it's not loaded yet.
 // It will automatically import all actions as soon it gets loaded by MediaMonkey.
-if(typeof addons != "undefined" && addons.addonMenu != null)
-  addons.addonMenu.refresh();
+if(typeof window.addons != "undefined" && window.addons.addonMenu != null)
+  window.addons.addonMenu.refresh();
 ```
 
 Also see the SampleAddon folder for a full usage example.
