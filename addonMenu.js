@@ -507,6 +507,8 @@ addons.addonMenu = {
 			type: "group",
 			actions: actionList
 		}
+
+		this.editNode.actions.push(newGroup);
 		return newGroup;
 	},
 
