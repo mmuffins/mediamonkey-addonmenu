@@ -25,5 +25,6 @@ SOFTWARE.
 
 Third party software and libraries used:
 
-iconmonstr https://iconmonstr.com/
+iconmonstr
+https://iconmonstr.com/
 License https://iconmonstr.com/license/
