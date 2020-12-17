@@ -50,10 +50,11 @@ inheritClass('AddonTree', CheckboxTree, {
     drop: function (e) {
 
         if (this._lastDropNodeResult /* this property is from window.dnd.getFocusedItemHandler */ ) {
-            let handler = nodeHandlers[this._dropNode.handlerID];
+            let handler = nodeHandlers[this._dropNode.handlerID]; // datatype of the drop target
             if (handler && handler.drop) {
-                e._dropNode = this._dropNode;
+                e._dropNode = this._dropNode; // element that is dropped onto
                 handler.drop(this._dropNode.dataSource, e);
+                this._dropNode.expanding = false
             }
         }
 
@@ -85,7 +86,9 @@ inheritClass('AddonTree', CheckboxTree, {
             let srcObject = targetParent.findChild(`${datatype}:${srcObjectNode.id}`);
             srcObject.checked = srcObjectNode.show;
         }
-
+        
+        this.focusNode(e._dropNode)
+        this.expandFocused()
         this.cancelDrop();
     },
 
