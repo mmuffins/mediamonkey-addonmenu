@@ -1,10 +1,10 @@
 "use strict";
 
 // Add global section to register addon actions if it doesn't exist yet
-if(typeof addons == "undefined" )
-	addons = {};
+if(typeof window.window.addons == "undefined" )
+	window.window.addons = {};
 	
-addons.addonMenu = {
+window.addons.addonMenu = {
 
 	rootNode: {
 		type: "root",

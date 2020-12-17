@@ -1,28 +1,28 @@
-if(!actionCategories.hasOwnProperty('addons')){
-  actionCategories.addons = () => _('Addons');
+if(!window.actionCategories.hasOwnProperty('addons')){
+  window.actionCategories.addons = () => _('Addons');
 }
 
-actions.addonMenuSampleAddonAction1 = {
+window.actions.addonMenuSampleAddonAction1 = {
   title: () => _('Action 1'),
   hotkeyAble: false,
   category: actionCategories.addons,
   addon: () => _("Sample Addon Actions"),
     
   execute: function () {
-    addons.addonMenuSampleAddon.function1();
+    window.addons.addonMenuSampleAddon.function1();
   }
 }
 
-actions.addonMenuSampleAddonAction2 = {
+window.actions.addonMenuSampleAddonAction2 = {
   title: () => _('Action 2'),
   hotkeyAble: false,
   category: actionCategories.addons,
   addon: () => _("Sample Addon Other Actions"),
     
-  execute: () => addons.addonMenuSampleAddon.function2()
+  execute: () => window.addons.addonMenuSampleAddon.function2()
 }
 
-actions.addonMenuSampleAddonInlineAction = {
+window.actions.addonMenuSampleAddonInlineAction = {
   title: () => _('Inline Action'),
   hotkeyAble: false,
   category: actionCategories.addons,
@@ -32,5 +32,5 @@ actions.addonMenuSampleAddonInlineAction = {
 }
 
 // Refresh the addons menu if it was already loaded
-if(typeof addons != "undefined" && addons.addonsMenu != null)
-  addons.addonsMenu.refresh();
+if(typeof window.addons != "undefined" && window.addons.addonsMenu != null)
+  window.addons.addonsMenu.refresh();
