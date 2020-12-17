@@ -511,7 +511,6 @@ window.addons.addonMenu = {
 			actions: actionList
 		}
 
-		this.editNode.actions.push(newGroup);
 		return newGroup;
 	},
 
