@@ -32,7 +32,6 @@ jobs:
         $version = [Management.Automation.SemanticVersion]::new($fileVersion.Major, $fileVersion.Minor, $env:GITHUB_RUN_NUMBER)
         
         Write-Output "Setting version to $version"
-        Write-Output "::debug::Setting version tox $version"
         "VERSION=$($version.ToString())" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         
         $fileContent.version = $version.ToString()
@@ -45,7 +44,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
-        name: extension
+        name: addon
         path: ${{ github.workspace }}/${{ env.EXTENSION_FILE_NAME }}${{ env.VERSION }}.mmip
         
     - name: Create Release
