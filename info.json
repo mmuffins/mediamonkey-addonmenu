@@ -2,7 +2,7 @@
     "title": "Addon Menu",
     "id": "addonMenu",
     "description": "Adds an Addons Section to the Main Menu",
-    "version": "1.0.0",
+    "version": "4.0.0",
     "type": "general",
     "author": "mmuffins",
     "config": "config.js",
