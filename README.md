@@ -1,6 +1,4 @@
 # Addon Menu for MediaMonkey
-[![Build status](https://dev.azure.com/mmuffins/github/_apis/build/status/MediaMonkey.AddonMenu)](https://dev.azure.com/mmuffins/github/_build/latest?definitionId=79)
-
 This addon adds an additional item to the MediaMonkey 5 main menu bar that allows addon developers to present an entry point or functionality of their addon in a central and consistent way to the user.
 
 ## Installation
