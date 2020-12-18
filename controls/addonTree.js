@@ -5,12 +5,12 @@
 requirejs('controls/checkboxTree');
 
 /**
-@class ExtensionTree
+@class AddonTree
 @constructor
 @extends CheckboxTree
 */
 
-inheritClass('ExtensionTree', CheckboxTree, {
+inheritClass('AddonTree', CheckboxTree, {
     _onExpanded: function (e) {
         var node = e.detail.currentNode;
         if (this.dataSource.keepChildrenWhenCollapsed && node.expandCount > 1)
@@ -50,17 +50,18 @@ inheritClass('ExtensionTree', CheckboxTree, {
     drop: function (e) {
 
         if (this._lastDropNodeResult /* this property is from window.dnd.getFocusedItemHandler */ ) {
-            let handler = nodeHandlers[this._dropNode.handlerID];
+            let handler = nodeHandlers[this._dropNode.handlerID]; // datatype of the drop target
             if (handler && handler.drop) {
-                e._dropNode = this._dropNode;
+                e._dropNode = this._dropNode; // element that is dropped onto
                 handler.drop(this._dropNode.dataSource, e);
+                this._dropNode.expanding = false
             }
         }
 
         if(e.path[0].classList[0] == "lvViewport"){
             // object was dropped inside the treeview element but not on a node
             // move the element to the top level
-            let handler = nodeHandlers['extensionsMenuTreeRoot'];
+            let handler = nodeHandlers['addonMenuTreeRoot'];
             if (handler && handler.drop) {
                 e._dropNode = this.dataSource.root;
                 handler.drop(this.dataSource.root.dataSource, e);
@@ -79,13 +80,15 @@ inheritClass('ExtensionTree', CheckboxTree, {
             let targetParent = this.dataSource.root;
 
             if(parentType == "groups"){
-                targetParent = ctrl.controlClass.dataSource.root.findChild(`extensionsGroupNode:${srcObjectNode.group}`);
+                targetParent = ctrl.controlClass.dataSource.root.findChild(`addonGroupNode:${srcObjectNode.group}`);
             }
 
             let srcObject = targetParent.findChild(`${datatype}:${srcObjectNode.id}`);
             srcObject.checked = srcObjectNode.show;
         }
-
+        
+        this.focusNode(e._dropNode)
+        this.expandFocused()
         this.cancelDrop();
     },
 

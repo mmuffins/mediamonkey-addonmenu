@@ -1,6 +1,6 @@
-requirejs('Scripts/ExtensionsMenu/extensionsMenu')
+requirejs('Scripts/AddonMenu/addonMenu')
 
-nodeHandlers.extensionsMenuTreeRoot = inheritNodeHandler('extensionsMenuTreeRoot', 'Base', {
+nodeHandlers.addonMenuTreeRoot = inheritNodeHandler('addonMenuTreeRoot', 'Base', {
     getChildren: function (node) {
         return new Promise(function (resolve, reject) {
             if(!node.datasource){
@@ -9,9 +9,9 @@ nodeHandlers.extensionsMenuTreeRoot = inheritNodeHandler('extensionsMenuTreeRoot
 
             node.dataSource.actions.forEach(itm => {
                 if(itm.type == "group"){
-                    node.addChild(itm,'extensionsGroupNode')
+                    node.addChild(itm,'addonGroupNode')
                 } else{
-                    node.addChild(itm,'extensionsMenuNode')
+                    node.addChild(itm,'addonMenuNode')
                 }
             })
             resolve();
@@ -24,7 +24,7 @@ nodeHandlers.extensionsMenuTreeRoot = inheritNodeHandler('extensionsMenuTreeRoot
         // datatype of the element that was dropped
         let datatype = dnd.getDropDataType(e);
         
-        if (srcObjectNode && (datatype == 'extensionsGroupNode' || datatype == 'extensionsMenuNode')) {
+        if (srcObjectNode && (datatype == 'addonGroupNode' || datatype == 'addonMenuNode')) {
 
             // the details of the datasource will change after it has been
             // moved, save the current details for later
@@ -33,20 +33,20 @@ nodeHandlers.extensionsMenuTreeRoot = inheritNodeHandler('extensionsMenuTreeRoot
             if(srcObjectNode.group == "root"){
                 srcObjectParent =  ctrl.controlClass.dataSource.root;
             } else {
-                srcObjectParent = ctrl.controlClass.dataSource.root.findChild(`extensionsGroupNode:${srcObjectNode.group}`);
+                srcObjectParent = ctrl.controlClass.dataSource.root.findChild(`addonGroupNode:${srcObjectNode.group}`);
             }
 
             let targetParent = ctrl.controlClass.dataSource.root;
 
-            if(datatype == 'extensionsMenuNode'){
-                extensions.extensionsMenu.moveAction(srcObjectNode,dataSource);
+            if(datatype == 'addonMenuNode'){
+                addons.addonMenu.moveAction(srcObjectNode,dataSource);
                 ctrl.controlClass.dataSource.notifyChanged();
                 if(targetParent.persistentID != srcObjectParent.persistentID){
                     // parent has changed, also update source node
                     nodeUtils.refreshNodeChildren(srcObjectParent);
                 }
             } else {
-                extensions.extensionsMenu.moveGroup(srcObjectNode,dataSource);
+                addons.addonMenu.moveGroup(srcObjectNode,dataSource);
             }
 
             ctrl.controlClass.dataSource.notifyChanged();
@@ -55,7 +55,7 @@ nodeHandlers.extensionsMenuTreeRoot = inheritNodeHandler('extensionsMenuTreeRoot
     },
 });
 
-nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Base', {
+nodeHandlers.addonGroupNode = inheritNodeHandler('addonGroupNode', 'Base', {
     hideCheckbox: function (node) {
         return true;
     },
@@ -72,7 +72,7 @@ nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Ba
         return new Promise(function (resolve, reject) {
             if(nodeHandlers[node.handlerID].hasChildren(node)){
                 node.dataSource.actions.forEach(itm => {
-                    node.addChild(itm,'extensionsMenuNode')
+                    node.addChild(itm,'addonMenuNode')
                 });
             }
             resolve();
@@ -94,7 +94,7 @@ nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Ba
         // datatype of the element that was dropped
         let datatype = dnd.getDropDataType(e);
         
-        if (srcObjectNode && (datatype == 'extensionsGroupNode' || datatype == 'extensionsMenuNode')) {
+        if (srcObjectNode && (datatype == 'addonGroupNode' || datatype == 'addonMenuNode')) {
             if (srcObjectNode.id == dataSource.id){
                 // we cannot drop to itself
                 return  
@@ -107,26 +107,26 @@ nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Ba
             if(srcObjectNode.group == "root"){
                 srcObjectParent =  ctrl.controlClass.dataSource.root;
             } else {
-                srcObjectParent = ctrl.controlClass.dataSource.root.findChild(`extensionsGroupNode:${srcObjectNode.group}`);
+                srcObjectParent = ctrl.controlClass.dataSource.root.findChild(`addonGroupNode:${srcObjectNode.group}`);
             }
 
             let targetParent = e._dropNode.parent;
-            if(datatype == "extensionsMenuNode"){
+            if(datatype == "addonMenuNode"){
                 // if the dropped element was an action it will be moved
                 // to the item it has been dropped on
                 targetParent = e._dropNode;
             } 
 
-            if(datatype == 'extensionsMenuNode'){
-                extensions.extensionsMenu.moveAction(srcObjectNode,dataSource);
+            if(datatype == 'addonMenuNode'){
+                addons.addonMenu.moveAction(srcObjectNode,dataSource);
             } else {
-                extensions.extensionsMenu.moveGroup(srcObjectNode,dataSource);
+                addons.addonMenu.moveGroup(srcObjectNode,dataSource);
             }
 
             ctrl.controlClass.dataSource.notifyChanged();
             nodeUtils.refreshNodeChildren(ctrl.controlClass.root);
 
-            if(datatype == 'extensionsMenuNode'){
+            if(datatype == 'addonMenuNode'){
                 nodeUtils.refreshNodeChildren(targetParent);
     
                 if(targetParent.persistentID != srcObjectParent.persistentID){
@@ -138,13 +138,13 @@ nodeHandlers.extensionsGroupNode = inheritNodeHandler('extensionsGroupNode', 'Ba
     },
 
     deleteItems: function (node) {
-        extensions.extensionsMenu.removeGroup(node.dataSource);
+        addons.addonMenu.removeGroup(node.dataSource);
         nodeUtils.refreshNodeChildren(node.parent);
     },
     
 });
 
-nodeHandlers.extensionsMenuNode = inheritNodeHandler('extensionsMenuNode', 'Base', {
+nodeHandlers.addonMenuNode = inheritNodeHandler('addonMenuNode', 'Base', {
     hideCheckbox: function (node) {
         return false;
     },
@@ -162,7 +162,7 @@ nodeHandlers.extensionsMenuNode = inheritNodeHandler('extensionsMenuNode', 'Base
         return new Promise(function (resolve, reject) {
             if(nodeHandlers[node.handlerID].hasChildren(node)){
                 node.dataSource.actions.forEach(itm => {
-                    node.addChild(itm,'extensionsMenuNode')
+                    node.addChild(itm,'addonMenuNode')
                 });
             }
             resolve();
@@ -178,7 +178,7 @@ nodeHandlers.extensionsMenuNode = inheritNodeHandler('extensionsMenuNode', 'Base
         // datatype of the element that was dropped
         let datatype = dnd.getDropDataType(e);
         
-        if (srcObjectNode && (datatype == 'extensionsGroupNode' || datatype == 'extensionsMenuNode')) {
+        if (srcObjectNode && (datatype == 'addonGroupNode' || datatype == 'addonMenuNode')) {
             if (srcObjectNode.id == dataSource.id){
                 // we cannot drop to itself
                 return  
@@ -191,7 +191,7 @@ nodeHandlers.extensionsMenuNode = inheritNodeHandler('extensionsMenuNode', 'Base
             if(srcObjectNode.group == "root"){
                 srcObjectParent =  ctrl.controlClass.dataSource.root;
             } else {
-                srcObjectParent = ctrl.controlClass.dataSource.root.findChild(`extensionsGroupNode:${srcObjectNode.group}`);
+                srcObjectParent = ctrl.controlClass.dataSource.root.findChild(`addonGroupNode:${srcObjectNode.group}`);
             }
 
             let targetParent;
@@ -203,16 +203,16 @@ nodeHandlers.extensionsMenuNode = inheritNodeHandler('extensionsMenuNode', 'Base
                 targetParent = e._dropNode;
             }
 
-            if(datatype == 'extensionsMenuNode'){
-                extensions.extensionsMenu.moveAction(srcObjectNode,dataSource);
+            if(datatype == 'addonMenuNode'){
+                addons.addonMenu.moveAction(srcObjectNode,dataSource);
             } else {
-                extensions.extensionsMenu.moveGroup(srcObjectNode,dataSource);
+                addons.addonMenu.moveGroup(srcObjectNode,dataSource);
             }
 
             ctrl.controlClass.dataSource.notifyChanged();
             nodeUtils.refreshNodeChildren(ctrl.controlClass.root);
 
-            if(datatype == 'extensionsMenuNode'){
+            if(datatype == 'addonMenuNode'){
                 nodeUtils.refreshNodeChildren(targetParent);
     
                 if(targetParent.persistentID != srcObjectParent.persistentID){

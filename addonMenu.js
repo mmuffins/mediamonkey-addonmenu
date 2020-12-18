@@ -1,9 +1,10 @@
 "use strict";
 
-// Add global section to register extension actions if it doesn't exist yet
-extensions = extensions || {};
+// Add global section to register addon actions if it doesn't exist yet
+if(typeof window.window.addons == "undefined" )
+	window.window.addons = {};
 	
-extensions.extensionsMenu = {
+window.addons.addonMenu = {
 
 	rootNode: {
 		type: "root",
@@ -18,7 +19,7 @@ extensions.extensionsMenu = {
 	},
 
 	miscCategoryName: "Misc",
-	addonName: () => "ExtensionsMenu",
+	addonName: () => "AddonMenu",
 
 	refresh: async function(){
 		let _this = this;
@@ -38,26 +39,26 @@ extensions.extensionsMenu = {
 		for (let i = 0; i < window.mainMenuItems.length; i++) {
 			const itm = window.mainMenuItems[i].action;
 			
-			if(itm.hasOwnProperty('title') && itm.title instanceof Function && itm.title() == '&Extensions'){
+			if(itm.hasOwnProperty('title') && itm.title instanceof Function && itm.title() == '&Addons'){
 				itm.submenu = Menu;
 				return;
 			}
 		}
 		
-		// The extensions menu item has not yet been added to the main menu
+		// The addons menu item has not yet been added to the main menu
 
-		// The help menu is, by convention, the last item on a menu bar, so the extension menu should be positioned before it.
+		// The help menu is, by convention, the last item on a menu bar, so the addon menu should be positioned before it.
 
 		let helpMenu = window.mainMenuItems.filter(itm => itm.action.title instanceof Function && itm.action.title() == "&Help")[0]
 		// While just taking the first index before the helpmenu could cause a collision with other items,
-		// it doesn't matter beacause what ultimately decides the used order is the position within the mainMenuItems array,
+		// it doesn't matter because what ultimately decides the used order is the position within the mainMenuItems array,
 		// not the order property
 		let extMenuIndex = helpMenu.order -1;
 
 		let newMenu = {
 			action: {
 				title: function () {
-						return _('&Extensions');
+						return _('&Addons');
 				},
 				visible: !webApp,
 				submenu: Menu
@@ -67,25 +68,25 @@ extensions.extensionsMenu = {
 		}
 
 		window.mainMenuItems.push(newMenu);
-		window.mainMenuItems.sort((a,b) =>  !a.hasOwnProperty('order') || a.order > b.order);
+		window.mainMenuItems.sort((a,b) => !a.hasOwnProperty('order') || a.order - b.order);
 		uitools.switchMainMenu(false);
 		uitools.switchMainMenu(true);
 	},
 
-	getExtensionActions: function(){
-		// returns a list of all actions with an extension property
+	getAddonActions: function(){
+		// returns a list of all actions with an addon property
 
 		return Object.keys(actions)
-			.filter((key) => actions[key].hasOwnProperty("extension") 
-				&& actions[key].extension instanceof Function
-				&& (actions[key].extension()))
+			.filter((key) => actions[key].hasOwnProperty("addon") 
+				&& actions[key].addon instanceof Function
+				&& (actions[key].addon()))
 			.map(function(key){return {key:key,action:actions[key]}})
 	},
 
 	getValidActions: function(){
-		// returns a list of all extension actions with valid properties
+		// returns a list of all addon actions with valid properties
 
-		let allActions = this.getExtensionActions();
+		let allActions = this.getAddonActions();
 
 		let validActions = allActions.filter(ext => {
 			return (ext.action.hasOwnProperty('execute') 
@@ -98,31 +99,31 @@ extensions.extensionsMenu = {
 		return validActions;
 	},
 
-	getExtensionList: function(actionObjects){
-		// Returns the grouped extension list of all loaded actions
+	getAddonList: function(actionObjects){
+		// Returns the grouped addon list of all loaded actions
 
-		return [...new Set(actionObjects.map(act => act.action.extension()))]
+		return [...new Set(actionObjects.map(act => act.action.addon()))]
 	},
 
 	groupActions: function(actionObjects){
-		// returns an array of all valid actions grouped by their extension;
+		// returns an array of all valid actions grouped by their addon;
 
 		let groupedActions = [];
-		let extensionList = this.getExtensionList(actionObjects);
+		let addonList = this.getAddonList(actionObjects);
 
 		// expand valid actions to full object to be able to group them
 		// let actionFunctions = Object.keys(actions)
 		// 	.filter(key => validActions.includes(key))
 		// 	.map(function(key){return {key:key,action:actions[key]}})
 		
-		// get the actions for each extension and group them
-		extensionList.forEach(ext =>{
+		// get the actions for each addon and group them
+		addonList.forEach(ext =>{
 			let filteredActions = actionObjects
-				.filter(act => act.action.extension() == ext)
+				.filter(act => act.action.addon() == ext)
 				.map(act => act.key)
 
 			groupedActions.push({
-				extension: ext,
+				addon: ext,
 				actions: filteredActions
 			});
 		});
@@ -141,9 +142,9 @@ extensions.extensionsMenu = {
 		let extSortOrder = 0;
 		groupedActions.forEach(ext =>{
 
-			// map each action with its order within the extension and an unique ID
+			// map each action with its order within the addon and an unique ID
 			let actionSortOrder = 0;
-			let newGroup = this.newGroup(ext.extension, [], (extSortOrder += 10))
+			let newGroup = this.newGroup(ext.addon, [], (extSortOrder += 10))
 
 			let extActions = ext.actions.map(act => {
 				return {
@@ -163,7 +164,7 @@ extensions.extensionsMenu = {
 	},
 
 	buildActionTree: function(){
-		// Creates an extension tree from the currently loaded actions
+		// Creates an addon tree from the currently loaded actions
 
 		let validActions = this.getValidActions();
 		return this.buildNodeTree(validActions);
@@ -171,19 +172,23 @@ extensions.extensionsMenu = {
 	},
 
 	buildUserActionTree: function(){
-		// Creates an extension tree from the currently loaded actions
+		// Creates an addon tree from the currently loaded actions
 		// and applies user settings to it
 
 		let validActions = this.getValidActions();
 		let userSettings = this.loadSettings();
 		userSettings.sort(this.sortGroup);
 
-		// only include extension actions if they have not been saved before
 		let validActionsKeys = validActions.map(itm => itm.key);
 		let userSettingsKeys = userSettings
 			.filter(itm => itm.type == 'action')
 			.map(itm => itm.action);
-
+		
+		// remove user preferences if their related action is not available anymore in case the addon was removed
+		userSettingsKeys = userSettingsKeys.filter(itm => validActionsKeys.includes(itm))
+		let userActions = userSettings.filter(itm => userSettingsKeys.includes(itm.action));
+		
+		// only include addon actions if they don't have a user preference yet
 		validActionsKeys = validActionsKeys.filter(itm => !userSettingsKeys.includes(itm))
 		let extActions = validActions.filter(itm => validActionsKeys.includes(itm.key))
 
@@ -191,15 +196,15 @@ extensions.extensionsMenu = {
 		let actionNodes = this.buildNodeTree(extActions);
 
 		// build node tree from loaded user settings
-		let userActions = userSettings.filter(itm => itm.type == 'action');
 		let userGroups = userSettings.filter(itm => itm.type == 'group');
 
 		let actionTree = []
 		userGroups.forEach(grp => {
 			let grpActions = userActions.filter(act => act.group == grp.id);
-			// grp.order = (groupOrder += 10);
-			grp.actions = grpActions;
-			actionTree.push(grp);
+			if(grpActions.length > 0){
+				grp.actions = grpActions;
+				actionTree.push(grp);
+			}
 		});
 
 		let rootActions = userActions.filter(act => act.group == 'root');
@@ -210,7 +215,10 @@ extensions.extensionsMenu = {
 		actionTree.sort(this.sortGroup);
 
 		// add all new actions to the bottom of the list
-		let groupOrder = actionTree[actionTree.length -1].order;
+		let groupOrder = 0;
+		if(actionTree[actionTree.length -1]){
+			groupOrder = actionTree[actionTree.length -1].order;
+		}
 
 		actionNodes.forEach(node => {
 			node.order = (groupOrder += 10);
@@ -221,7 +229,7 @@ extensions.extensionsMenu = {
 	},
 
 	getRootNode: function(){
-		// returns the main extension menu root node
+		// returns the main addon menu root node
 		if(this.rootNode.actions.length == 0)
 			this.rootNode.actions = this.buildUserActionTree();
 				
@@ -229,7 +237,7 @@ extensions.extensionsMenu = {
 	},
 
 	getEditRootNode: function(){
-		// returns a temporary extension menu root node
+		// returns a temporary addon menu root node
 		if(this.editNode.actions.length == 0)
 			this.editNode.actions = this.buildUserActionTree();
 		
@@ -265,7 +273,7 @@ extensions.extensionsMenu = {
 					}
 				})
 
-			let extensionAction = {
+			let addonAction = {
 				title: () => ext.title,
 				submenu: actionList
 			};
@@ -273,9 +281,12 @@ extensions.extensionsMenu = {
 			menu.push({
 				grouporder: 10,
 				order: ext.order,
-				action: extensionAction
+				action: addonAction
 			});
 		});
+
+		// remove groups without visible actions
+		menu = menu.filter(x => x.action.submenu.length > 0)
 
 		let rootActions = extTree
 			.filter(itm => itm.type == "action" && itm.group == "root");
@@ -500,7 +511,6 @@ extensions.extensionsMenu = {
 			actions: actionList
 		}
 
-		this.editNode.actions.push(newGroup)
 		return newGroup;
 	},
 

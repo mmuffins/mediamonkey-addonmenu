@@ -1,5 +1,6 @@
-<div data-id="pnlCollectionsRoot" class="padding fill flex column" data-tip="Organize the displayed extension actions into groups.">
-    <div data-id="lvTreeView" class="fill flex column hSeparatorTiny" data-control-class="ExtensionTree" data-init-params="{enableDragDrop: true}"></div>
+<div data-id="pnlCollectionsRoot" class="padding fill flex column">
+    <div data-id="lblNoAddonsFound" class="padding fill flex column" style="display:none; position: absolute; top: 35%; margin: 10; font-size: 120%;">No addon actions were found. Visit <a href="https://www.mediamonkey.com">https://www.mediamonkey.com</a> to get addons and skins.</div>
+    <div data-id="lvTreeView" class="fill flex column hSeparatorTiny" data-control-class="AddonTree" data-init-params="{enableDragDrop: true}"></div>
     <div data-control-class="Buttons">
         <div data-id='btnNewGroup' data-control-class="Button" data-position='opposite' data-tip="Add a new group.">New</div>
         <div data-id='btnDeleteGroup' data-control-class="Button" data-position='opposite' data-tip="Delete the selected group.">Delete</div>

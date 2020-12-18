@@ -1,9 +1,10 @@
 {
-    "title": "Extensions Menu",
-    "id": "extensionsMenu",
-    "description": "Adds an Extensions Section to the Main Menu",
-    "version": "1.0.0",
+    "title": "Addon Menu",
+    "id": "addonMenu",
+    "description": "Adds an Addons Section to the Main Menu",
+    "version": "4.0.0",
     "type": "general",
-    "author": "Michael Kellner",
-    "config": "config.js"
+    "author": "mmuffins",
+    "config": "config.js",
+    "icon": "/skin/icon/addonMenu.svg"    
 }

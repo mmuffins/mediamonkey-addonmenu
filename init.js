@@ -1,2 +1,2 @@
-localRequirejs('extensionsMenu')
-extensions.extensionsMenu.refresh()
+localRequirejs('addonMenu')
+addons.addonMenu.refresh()
