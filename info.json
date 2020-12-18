@@ -1,10 +1,10 @@
 {
     "title": "Addon Menu",
     "id": "addonMenu",
-    "description": "Adds an Addons Section to the Main Menu",
+    "description": "Adds an Addons section to the main menu bar.",
     "version": "4.0.0",
     "type": "general",
     "author": "mmuffins",
     "config": "config.js",
-    "icon": "/skin/icon/addonMenu.svg"    
+    "icon": "info.svg"
 }
