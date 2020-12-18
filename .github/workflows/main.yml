@@ -66,5 +66,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ${{ github.workspace }}/${{ env.EXTENSION_FILE_NAME }}${{ env.VERSION }}.mmip
-        asset_name: ${{ env.EXTENSION_FILE_NAME }}
+        asset_name: ${{ env.EXTENSION_FILE_NAME }}${{ env.VERSION }}.mmip
         asset_content_type: application/zip
