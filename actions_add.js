@@ -4,4 +4,4 @@ if (typeof window.addons == "undefined")
 
 if(!window.actionCategories.hasOwnProperty('addons')){
 	window.actionCategories.addons = () => _('Addons');
-  }
+}
