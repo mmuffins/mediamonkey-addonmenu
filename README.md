@@ -8,11 +8,11 @@ Download the latest release from the releases section and double click the downl
 The addon menu will only be displayed if addon actions were found. You can validate this by opening the addon configuration page for the addon menu.
 
 ### I installed an addon, but the menu doesn't contain any actions for it
-If an installed addon doesnät show up in the menu, it either doesn't expose any actions or the actions are not configured to work with the addon menu. If there is an addon you would like to see added to the menu, please point the maintainer of the addon to this page, menu support can usually be added with a few lines of code.
+If an installed addon doesn't show up in the menu, it either doesn't expose any actions or the actions are not configured to work with the addon menu. If there is an addon you would like to see added to the menu, please point the maintainer of the addon to this page, menu support can usually be added with a few lines of code.
 
 ## Developer information
 ### Registering actions
-The addon menu automatically imports all valid actions from the global actions object if they are in the Extenions category. The following properties are required for an action to be considered valid:
+The addon menu automatically imports all valid actions from the global actions object if they are in the addons category. The following properties are required for an action to be considered valid:
 
 | Name          | Type       | Description  |
 | :------------ |:---------- | :----------  |
