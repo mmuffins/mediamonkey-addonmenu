@@ -69,7 +69,9 @@ window.configInfo = {
 
         // the config menu runs in a separate context from the main window
         let mainAppWindow = app.dialogs.getMainWindow()._window;
-        mainAppWindow.addons.addonMenu.refresh();
+        if(mainAppWindow.addons && mainAppWindow.addons.addonMenu){
+            mainAppWindow.addons.addonMenu.refresh();
+        }
     },
 
     handleButtonsDisableState: function(e){

@@ -1,5 +1,7 @@
 // Add global section to register addon actions if it doesn't exist yet
-if(typeof addons == "undefined" )
-	addons = {};
+if (typeof window.addons == "undefined")
+  window.addons = {}
 
-actionCategories.addons = () => _('Addons');
+if(!window.actionCategories.hasOwnProperty('addons')){
+	window.actionCategories.addons = () => _('Addons');
+}
