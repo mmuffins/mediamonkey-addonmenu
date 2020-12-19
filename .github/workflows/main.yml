@@ -19,7 +19,7 @@ jobs:
     - name: Clean up addon directory
       shell: pwsh
       run: |
-        # Remove-Item -Path "${{ github.workspace }}/SampleAddon" -Recurse -Force -Verbose
+        Remove-Item -Path "${{ github.workspace }}/SampleAddon" -Recurse -Force -Verbose
         Remove-Item -Path "${{ github.workspace }}/.git" -Recurse -Force -Verbose
         Remove-Item -Path "${{ github.workspace }}/.github" -Recurse -Force -Verbose
 
