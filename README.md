@@ -2,7 +2,7 @@
 This addon adds an additional item to the MediaMonkey 5 main menu bar that allows addon developers to present an entry point or functionality of their addon in a central and consistent way to the user.
 
 ## Installation
-Download the latest release from the releases section and double click the downloaded mmip file. An MediaMonkey dialog will automatically pop up, prompting you to confirm the installation. Once installed, the addon menu will automatically look for actions exposed by installed addons and add them to a new Addons item in the main menu bar.
+Download the latest release from the releases section and double click the downloaded mmip file. A MediaMonkey dialog will automatically pop up, prompting you to confirm the installation. Once installed, the addon menu will automatically look for actions exposed by installed addons and add them to a new Addons item in the main menu bar.
 
 ### I don't see the addon menu after I installed the addon
 The addon menu will only be displayed if addon actions were found. You can validate this by opening the addon configuration page for the addon menu.
